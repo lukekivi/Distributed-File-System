@@ -42,3 +42,11 @@ struct WriteResponse {
     1: Status status,
     2: string msg
 }
+
+/**
+ * Data structure to represent server info
+ */
+struct ServerInfo {
+    1: string ip,
+    2: i32 port
+}
