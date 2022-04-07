@@ -20,21 +20,21 @@ Folders maintain a list of `File`s
 Needs to time itself.
 
 # Questions 
-Are Servers to supposed to start with all of the same files?
+Are Servers to supposed to start with all of the same files? yes
 
-What is returned by read operations?
+What is returned by read operations? versio number
 
-Is this UI supposed to be dynamically updated?
+Is this UI supposed to be dynamically updated? query at any point mainly at the end of a set of reads and writes
 
 How to lock files?
 
 2. "If there are insufficient up-to-date copies within the quorum, the write operation should be applied to the ones with latest version numbers and the outdated copies should be replaced with this latest copy."
-* What does insufficient mean here?
+* What does insufficient mean here? Every thing in write quorom gets updated to latest version
 * What is being written? In 3 it updates version numbers.
 
 
 3. "After performing the write operation the version numbers should be incremented,
 and the completion should be notified back to the requesting client. The
 remaining replicas (outside of the quorum) can then be updated in the background."
-* How to update the others in the background?
+* How to update the others in the background? Update them lazily not necessarilly inline.
 * All of the others need to be updated?
