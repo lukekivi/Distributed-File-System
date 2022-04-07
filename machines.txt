@@ -1,0 +1,7 @@
+server ip port numerical_id
+server ip port numerical_id
+server ip port numerical_id
+server ip port numerical_id
+server ip port numerical_id
+server ip port numerical_id
+coordinator ip port numerical_id
