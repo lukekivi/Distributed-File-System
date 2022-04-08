@@ -4,19 +4,19 @@ Coordinator Functions (All RPC unless specified otherwise)
 	- Place a lock on the file that the request pertains to
 	- Then follow the Read or Write function
 
-	File CoordinatorRead:
+	File CoordinatorRead(File file):
 		- Assemble read quorum randomly according to the Nr + Nw > Ntotal rule
 		- Scan for the file with the highest version number from each of the quorum servers (ServerGetVersion)
 		- Return the file object with the highest version number (ServerGet)
 
-	Status CoordinatorWrite:
+	Status CoordinatorWrite(File file):
 		- Assemble write quorum randomly according to the Nw > (Ntotal / 2) rule
 		- Scan the quorum for the highest version number
 		- Apply the write to those file objects (ServerWrite)
 		- Replace the other old versions with the new File object (ServerUpdate)
 		- Push the new file to all of the other servers not in the quorum (pushHelper-non RPC)
 
-	Status pushHelper (non RPC):
+	Status pushHelper(int fileId) (non RPC):
 		- loop through all servers and call ServerUpdate on them
 
 
@@ -40,4 +40,5 @@ Server Functions (All RPC unless specified otherwise)
 
 - Queue is so all of the clients can contact the server at once and the server just grabs a request out of the queue
 - Is a write different than replacing old versions? So different functions that both just increment the version number?
+- *NOTE* Will need to go through and double check we use the file's Id and the file itself properly for each function. 
 
