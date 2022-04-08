@@ -1,6 +1,6 @@
 Coordinator Functions (All RPC unless specified otherwise)
 
-	- Create a request queue for all of the clients to add to
+	- Create a request queue for all of the clients commands to be added to
 	- Place a lock on the file that the request pertains to
 	- Then follow the Read or Write function
 
@@ -17,15 +17,11 @@ Coordinator Functions (All RPC unless specified otherwise)
 		- Push the new file to all of the other servers not in the quorum (pushHelper-non RPC)
 
 	Status pushHelper(int fileId) (non RPC):
-		- loop through all servers and call ServerUpdate on them
+		- loop through all servers and call ServerWrite on them
 
 
 Server Functions (All RPC unless specified otherwise)
 	
-	Status ServerUpdate(int fileId):
-		- Take the input file and find the same file in the folder object
-		- replace the file object with the new one passed in
-
 	Status ServerWrite(int fileId):
 		- Apply write
 		- Update the version number on the file
