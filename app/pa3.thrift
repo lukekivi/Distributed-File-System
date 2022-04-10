@@ -1,20 +1,4 @@
-namespace java pa3;
-
-/**
- * Request type
- */
-enum RequestType {
-    SEND = 0,
-    READ = 1
-}
-
-/**
- * Request data structure
- */
-struct Request {
-    1: RequestType type,
-    2: string file
-}
+namespace java pa3
 
 /**
  * App status
@@ -28,11 +12,31 @@ enum Status {
     NOT_FOUND = 2
 }
 
+
+/**
+ * File data structure
+ */
+struct File {
+    1: i32 id,
+    2: i32 version
+}
+
+
+/**
+ * Folder is used to pass files via RPC
+ */
+struct Folder {
+    1: list<File> files
+}
+
+
 /**
  * Response to a read request
  */
 struct ReadResponse {
-    1: 
+    1: File file,
+    2: Status status,
+    3: string msg
 }
 
 /**
@@ -43,10 +47,22 @@ struct WriteResponse {
     2: string msg
 }
 
+
 /**
- * Data structure to represent server info
+ * Response for an individual server's structure
  */
-struct ServerInfo {
-    1: string ip,
-    2: i32 port
+struct StructureResponse {
+    1: Folder folder,
+    2: Status status,
+    3: string msg
+}
+
+
+/**
+ * Response with structure of entire distributed file system
+ */
+struct PrintResponse {
+    1: list<Folder> folders,
+    2: Status status,
+    3: string msg
 }
