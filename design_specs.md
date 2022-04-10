@@ -12,17 +12,14 @@ In order for a server to join they must contact the coordinator and receive an O
 
 ## File
 Each file has two fields: name and version.
-## Folder
-Folders maintain a list of `File`s
-
 
 # Client
 Needs to time itself.
 
 # Questions 
-Are Servers to supposed to start with all of the same files? yes
+Are Servers supposed to start with all of the same files? yes
 
-What is returned by read operations? versio number
+What is returned by read operations? version number
 
 Is this UI supposed to be dynamically updated? query at any point mainly at the end of a set of reads and writes
 
