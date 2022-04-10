@@ -1,6 +1,6 @@
 package utils.RPC;
 
-import pa3.ServerInfo;
+import data.ServerInfo;
 import pa3.Server;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
