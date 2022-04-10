@@ -49,10 +49,10 @@ struct WriteResponse {
 
 
 /**
- * Response for an individual server's structure
+ * Response with an individual server's folder
  */
-struct StructureResponse {
-    1: Folder folder,
+struct FolderResponse {
+    1: Folder folders,
     2: Status status,
     3: string msg
 }
@@ -61,8 +61,24 @@ struct StructureResponse {
 /**
  * Response with structure of entire distributed file system
  */
-struct PrintResponse {
-    1: list<Folder> folders,
+struct StructResponse {
+    1: list<Folder> folder,
     2: Status status,
     3: string msg
+}
+
+
+/**
+ * Server is responsible for Coordinator tasks as well
+ */
+service Server {
+    WriteResponse ClientWrite(1: i32 fileId),
+    WriteResponse ServerWrite(1: i32 fileId),
+    WriteResponse CoordWrite(1: i32 fileId),
+    ReadResponse ClientRead(1: i32 fileId),
+    ReadResponse ServerRead(1: i32 fileId),
+    ReadResponse CoordRead(1: i32 fileId),
+    StructResponse ClientGetStruct(),
+    StructResponse ServerGetStruct(),
+    FolderResponse CoordGetFolder()
 }
