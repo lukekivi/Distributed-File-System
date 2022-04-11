@@ -14,16 +14,19 @@ package pa3;
 public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, java.io.Serializable, Cloneable, Comparable<Folder> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Folder");
 
-  private static final org.apache.thrift.protocol.TField FILES_FIELD_DESC = new org.apache.thrift.protocol.TField("files", org.apache.thrift.protocol.TType.LIST, (short)1);
+  private static final org.apache.thrift.protocol.TField SERVER_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("serverId", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField FILES_FIELD_DESC = new org.apache.thrift.protocol.TField("files", org.apache.thrift.protocol.TType.LIST, (short)2);
 
   private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY = new FolderStandardSchemeFactory();
   private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY = new FolderTupleSchemeFactory();
 
+  public int serverId; // required
   public @org.apache.thrift.annotation.Nullable java.util.List<File> files; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    FILES((short)1, "files");
+    SERVER_ID((short)1, "serverId"),
+    FILES((short)2, "files");
 
     private static final java.util.Map<java.lang.String, _Fields> byName = new java.util.HashMap<java.lang.String, _Fields>();
 
@@ -39,7 +42,9 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
     @org.apache.thrift.annotation.Nullable
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // FILES
+        case 1: // SERVER_ID
+          return SERVER_ID;
+        case 2: // FILES
           return FILES;
         default:
           return null;
@@ -82,9 +87,13 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
   }
 
   // isset id assignments
+  private static final int __SERVERID_ISSET_ID = 0;
+  private byte __isset_bitfield = 0;
   public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new java.util.EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.SERVER_ID, new org.apache.thrift.meta_data.FieldMetaData("serverId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.FILES, new org.apache.thrift.meta_data.FieldMetaData("files", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, File.class))));
@@ -96,9 +105,12 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
   }
 
   public Folder(
+    int serverId,
     java.util.List<File> files)
   {
     this();
+    this.serverId = serverId;
+    setServerIdIsSet(true);
     this.files = files;
   }
 
@@ -106,6 +118,8 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
    * Performs a deep copy on <i>other</i>.
    */
   public Folder(Folder other) {
+    __isset_bitfield = other.__isset_bitfield;
+    this.serverId = other.serverId;
     if (other.isSetFiles()) {
       java.util.List<File> __this__files = new java.util.ArrayList<File>(other.files.size());
       for (File other_element : other.files) {
@@ -121,7 +135,32 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
 
   @Override
   public void clear() {
+    setServerIdIsSet(false);
+    this.serverId = 0;
     this.files = null;
+  }
+
+  public int getServerId() {
+    return this.serverId;
+  }
+
+  public Folder setServerId(int serverId) {
+    this.serverId = serverId;
+    setServerIdIsSet(true);
+    return this;
+  }
+
+  public void unsetServerId() {
+    __isset_bitfield = org.apache.thrift.EncodingUtils.clearBit(__isset_bitfield, __SERVERID_ISSET_ID);
+  }
+
+  /** Returns true if field serverId is set (has been assigned a value) and false otherwise */
+  public boolean isSetServerId() {
+    return org.apache.thrift.EncodingUtils.testBit(__isset_bitfield, __SERVERID_ISSET_ID);
+  }
+
+  public void setServerIdIsSet(boolean value) {
+    __isset_bitfield = org.apache.thrift.EncodingUtils.setBit(__isset_bitfield, __SERVERID_ISSET_ID, value);
   }
 
   public int getFilesSize() {
@@ -167,6 +206,14 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
 
   public void setFieldValue(_Fields field, @org.apache.thrift.annotation.Nullable java.lang.Object value) {
     switch (field) {
+    case SERVER_ID:
+      if (value == null) {
+        unsetServerId();
+      } else {
+        setServerId((java.lang.Integer)value);
+      }
+      break;
+
     case FILES:
       if (value == null) {
         unsetFiles();
@@ -181,6 +228,9 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
   @org.apache.thrift.annotation.Nullable
   public java.lang.Object getFieldValue(_Fields field) {
     switch (field) {
+    case SERVER_ID:
+      return getServerId();
+
     case FILES:
       return getFiles();
 
@@ -195,6 +245,8 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
     }
 
     switch (field) {
+    case SERVER_ID:
+      return isSetServerId();
     case FILES:
       return isSetFiles();
     }
@@ -214,6 +266,15 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
     if (this == that)
       return true;
 
+    boolean this_present_serverId = true;
+    boolean that_present_serverId = true;
+    if (this_present_serverId || that_present_serverId) {
+      if (!(this_present_serverId && that_present_serverId))
+        return false;
+      if (this.serverId != that.serverId)
+        return false;
+    }
+
     boolean this_present_files = true && this.isSetFiles();
     boolean that_present_files = true && that.isSetFiles();
     if (this_present_files || that_present_files) {
@@ -230,6 +291,8 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
   public int hashCode() {
     int hashCode = 1;
 
+    hashCode = hashCode * 8191 + serverId;
+
     hashCode = hashCode * 8191 + ((isSetFiles()) ? 131071 : 524287);
     if (isSetFiles())
       hashCode = hashCode * 8191 + files.hashCode();
@@ -245,6 +308,16 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
 
     int lastComparison = 0;
 
+    lastComparison = java.lang.Boolean.compare(isSetServerId(), other.isSetServerId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetServerId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serverId, other.serverId);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = java.lang.Boolean.compare(isSetFiles(), other.isSetFiles());
     if (lastComparison != 0) {
       return lastComparison;
@@ -276,6 +349,10 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
     java.lang.StringBuilder sb = new java.lang.StringBuilder("Folder(");
     boolean first = true;
 
+    sb.append("serverId:");
+    sb.append(this.serverId);
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("files:");
     if (this.files == null) {
       sb.append("null");
@@ -302,6 +379,8 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
 
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, java.lang.ClassNotFoundException {
     try {
+      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
@@ -326,7 +405,15 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
           break;
         }
         switch (schemeField.id) {
-          case 1: // FILES
+          case 1: // SERVER_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.serverId = iprot.readI32();
+              struct.setServerIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // FILES
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
@@ -360,6 +447,9 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
+      oprot.writeFieldBegin(SERVER_ID_FIELD_DESC);
+      oprot.writeI32(struct.serverId);
+      oprot.writeFieldEnd();
       if (struct.files != null) {
         oprot.writeFieldBegin(FILES_FIELD_DESC);
         {
@@ -390,10 +480,16 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
     public void write(org.apache.thrift.protocol.TProtocol prot, Folder struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TTupleProtocol oprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
       java.util.BitSet optionals = new java.util.BitSet();
-      if (struct.isSetFiles()) {
+      if (struct.isSetServerId()) {
         optionals.set(0);
       }
-      oprot.writeBitSet(optionals, 1);
+      if (struct.isSetFiles()) {
+        optionals.set(1);
+      }
+      oprot.writeBitSet(optionals, 2);
+      if (struct.isSetServerId()) {
+        oprot.writeI32(struct.serverId);
+      }
       if (struct.isSetFiles()) {
         {
           oprot.writeI32(struct.files.size());
@@ -408,8 +504,12 @@ public class Folder implements org.apache.thrift.TBase<Folder, Folder._Fields>, 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Folder struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TTupleProtocol iprot = (org.apache.thrift.protocol.TTupleProtocol) prot;
-      java.util.BitSet incoming = iprot.readBitSet(1);
+      java.util.BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
+        struct.serverId = iprot.readI32();
+        struct.setServerIdIsSet(true);
+      }
+      if (incoming.get(1)) {
         {
           org.apache.thrift.protocol.TList _list5 = iprot.readListBegin(org.apache.thrift.protocol.TType.STRUCT);
           struct.files = new java.util.ArrayList<File>(_list5.size);

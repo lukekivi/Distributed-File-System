@@ -3,6 +3,8 @@ package utils;
 import data.ServerInfo;
 import data.Command;
 import data.CommandType;
+import pa3.ReadResponse;
+import pa3.WriteResponse;
 
 public class Print {
     public static void serverInfo(ServerInfo serverInfo) {
@@ -26,5 +28,23 @@ public class Print {
         } else {
             System.out.println();
         }
+    }
+
+    public static void ReadResponse(ReadResponse readResponse) {
+        System.out.println(
+            "ReadResponse:" +
+            "\n\t-  Status: " + readResponse.status +
+            "\n\t-     msg: " + readResponse.msg +
+            "\n\t- File ID: " + readResponse.file.id +
+            "\n\t- version: " + readResponse.file.version
+        );
+    }
+
+    public static void WriteResponse(WriteResponse writeResponse) {
+        System.out.println(
+            "WriteResponse:" +
+        "\n\t-  Status: " + writeResponse.status +
+        "\n\t-     msg: " + writeResponse.msg
+        );
     }
 }

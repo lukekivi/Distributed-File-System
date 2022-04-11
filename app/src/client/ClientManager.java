@@ -8,29 +8,20 @@ import data.Command;
 import data.ServerInfo;
 import utils.Config;
 import java.util.ArrayList;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 import pa3.Server;
+import pa3.Status;
 import data.CommandType;
+import pa3.File;
+import pa3.Folder;
 import pa3.ReadResponse;
 import pa3.StructResponse;
 import pa3.WriteResponse;
 
 
 public class ClientManager {
-    private final String LOG_FILE_PREFIX = "log/clientLog_";
-    private final String LOG_FILE_SUFFIX = ".txt";
-
-    private PrintStream fileOut = null;
     private final Config config = new Config();
-
-    public ClientManager() {
-        setLog();
-    }
-
 
     public void runCommands(String commandFilePath) {
         final String FID = "ClientManager.runCommands()";
@@ -69,6 +60,18 @@ public class ClientManager {
         final String FID = "ClientManager.handleRead()";
         try {
             ReadResponse readResponse = client.ClientRead(fileId);
+
+            if (readResponse.status == Status.SUCCESS) {
+                Log.info("Read File[" + readResponse.file.id + "] = " + readResponse.file.version);
+
+            } else if (readResponse.status == Status.NOT_FOUND) {
+                Log.info("Attempted to read File[" + readResponse.file.id + "] but it was not found.");
+
+            } else {
+                Log.info("Attempted to read from File[" + fileId + "] but an error ocurred.\n\t- " + readResponse.msg);
+
+            }
+
         } catch (TException x) {
             Log.error(FID, "Error reading from server", x);
         }
@@ -79,6 +82,17 @@ public class ClientManager {
         final String FID = "ClientManager.handleWrite()";
         try {
             WriteResponse writeResponse = client.ClientWrite(fileId);
+
+            if (writeResponse.status == Status.SUCCESS) {
+                Log.info("Write to File[" + fileId + "] succeeded.");
+
+            } else if (writeResponse.status == Status.NOT_FOUND) {
+                Log.info("Attempted to write to File[" + fileId + "] but it was not found.");
+
+            } else {
+                Log.info("Attempted to write to file but an error ocurred.\n\t- " + writeResponse.msg);
+            }
+
         } catch (TException x) {
             Log.error(FID, "Error writing to server", x);
         }
@@ -89,36 +103,27 @@ public class ClientManager {
         final String FID = "ClientManager.handlePrint()";
         try {
             StructResponse structResponse = client.ClientGetStruct();
+
+            if (structResponse.status == Status.SUCCESS) {
+                Log.info("File System Structure");
+
+                for (Folder folder : structResponse.folders) {
+                    Log.info("Folder[" + folder.serverId + "]");
+                    for (File file : folder.files) {
+                        Log.info("\t- File[" + file.id + "] = " + file.version);
+                    }
+                }
+
+            } else {
+                Log.info("Attempted get structure of file system but an occurred occurred.\n\t- " + structResponse.msg);
+            } 
+
         } catch (TException x) {
             Log.error(FID, "Error getting struct of server", x);
         }
     }
 
-
-    private void setLog() {
-        final String FID = "ClientManager.setLog()";
-        int num = 0;
-        String fileName = LOG_FILE_PREFIX + num + LOG_FILE_SUFFIX;
-        File file = new File(fileName);
-
-        while (file.exists()) {
-            num++;
-            fileName = LOG_FILE_PREFIX + num + LOG_FILE_SUFFIX;
-            file = new File(fileName);
-        }
-
-        System.out.println("All output directed to: " + fileName);
-
-        try {
-            fileOut = new PrintStream(fileName);
-            System.setOut(fileOut);  
-        } catch (FileNotFoundException x) {
-            Log.error(FID, "Error: Client not able to establish a log file.");
-        }
-    }
     
-
-
     public void testCommands(String commandFilePath) {
         ArrayList<Command> commands = config.getCommands(commandFilePath);
 
