@@ -1,9 +1,13 @@
-package Server;
+package server;
 
 import pa3.Status;
 import pa3.File;
 import utils.Config;
-import Data.ServerInfo;
+import utils.Log;
+import data.ServerInfo;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.io.FileNotFoundException;
 
 
 public class ServerManager {
@@ -29,8 +33,9 @@ public class ServerManager {
     */
     public File readFile(int fileId) {
         for (int i = 0; i < files.size(); i++) {
-            if (files[i].id == fileId) {
-                return files[i];
+            File file = files.get(i);
+            if (file.id == fileId) {
+                return file;
             }
         }
         return null;
@@ -42,8 +47,9 @@ public class ServerManager {
     */
     public Status writeFile(File file) {
         for (int i = 0; i < files.size(); i++) {
-            if (files[i].id == file.id) {
-                files[i].version = file.version + 1; // Increment version
+            File tempFile = files.get(i);
+            if (tempFile.id == file.id) {
+                tempFile.version = file.version + 1; // Increment version
                 return Status.SUCCESS;
             }
         }
@@ -72,7 +78,7 @@ public class ServerManager {
             }
             System.setOut(fileOut);  
         } catch (FileNotFoundException x) {
-            Log.error(FID, "Error: Server " + info.id + " not able to establish a server file.", x);
+            Log.error(FID, "Error: Server " + info.getId() + " not able to establish a server file.", x);
         }
     }
 

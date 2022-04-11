@@ -7,22 +7,22 @@ import pa3.StructResponse;
 import pa3.FolderResponse;
 import pa3.File;
 import pa3.Status;
-import Data.ServerInfo;
+import data.ServerInfo;
 import utils.Config;
 import utils.Log;
-import utils.RPC;
+import utils.RPC.ServerComm;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 
 public class ServerHandler implements Server.Iface {
     private ServerManager manager;
     private Coordinator coordinator;
-    private isCoord;
+    private boolean isCoord;
 
     public ServerHandler(ServerManager manager, Coordinator coordinator) {
         this.manager = manager;
         this.coordinator = coordinator;
-        if (manager.isCoord()) {
+        if (manager.getCoordinator().getId() == manager.info.getId()) {
             isCoord = true;
         } else {
             isCoord = false;

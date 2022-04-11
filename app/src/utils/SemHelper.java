@@ -1,13 +1,13 @@
 package utils;
 import java.util.concurrent.Semaphore;
 
-public SemHelper {
+public class SemHelper {
     Semaphore[] sems;
     int total;
 
     public SemHelper(int num) {
-        total = num;
-        sems = new Semaphore[num]
+        this.total = num;
+        this.sems = new Semaphore[num];
         initSems();
     }
 

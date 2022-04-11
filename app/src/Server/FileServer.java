@@ -1,14 +1,15 @@
-package Server;
+package server;
 
 import data.ServerInfo;
 import utils.Log;
-
 import pa3.Status;
-import Data.ServerInfo;
+import pa3.Server;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
+import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.TException;
@@ -31,22 +32,22 @@ public class FileServer {
             c = new Config();
             String ip = InetAddress.getLocalHost().getHostName() + ".cselabs.umn.edu";
             ServerInfo serverInfo = c.getServerInfo(ip); // Get server info
-            if (info == null) {
+            if (serverInfo == null) {
                 Log.error(FID, "Server not found in config file");
             }
 
             manager = new ServerManager(manager, c);
-            manager.setLog(serverInfo.id); // Setting the log for this server
+            manager.setLog(serverInfo.getId()); // Setting the log for this server
 
             ServerHandler handler = null; // Create handler
             Coordinator coordinator = null;
 
             if (serverInfo.isCoord()) { // This is coordinator
-                manager.setLog(serverInfo.id); // Setting the log for the coordinator
+                manager.setLog(serverInfo.getId()); // Setting the log for the coordinator
                 coordinator = new Coordinator(manager);
                 handler = new ServerHandler(null, coordinator);
             } else { // This is not coordinator
-                manager.setLog(serverInfo.id); // Setting the log for this server
+                manager.setLog(serverInfo.getId()); // Setting the log for this server
                 handler = new ServerHandler(manager, null);
             }
 
@@ -54,7 +55,7 @@ public class FileServer {
             Server.Processor processor = new Server.Processor<ServerHandler>(handler);
             Runnable simple = new Runnable() {
                 public void run() {
-                    multiThreadedServer(processor, serverInfo.port);
+                    multiThreadedServer(processor, serverInfo.getPort());
                 }
             };
             new Thread(simple).start();
