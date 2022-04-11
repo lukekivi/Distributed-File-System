@@ -5,7 +5,7 @@ import pa3.WriteResponse;
 import pa3.ReadResponse;
 import pa3.File;
 import pa3.Status;
-import pa3.ServerInfo;
+import Data.ServerInfo;
 import utils.Config;
 import utils.Log;
 import utils.RPC;
@@ -27,6 +27,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Loops through a write quorum, connects, calls quorumWrite() on that server
+    */
     public WriteResponse handleWrite(File file) {
         final String FID = "Coordinator.handleWrite()";
         ArrayList<ServerInfo> quorum = buildWriteQuorum(); // Build the quorum
@@ -49,6 +52,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Loops through a read quorum, connects, calls quorumRead() on that server
+    */
     public ReadResponse handleRead(File file) {
         final String FID = "Coordinator.handleRead()";
         ArrayList<ServerInfo> readQuorum = buildReadQuorum(); // Build the quorum
@@ -81,6 +87,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Loops through each server and grabs a folder that contains all files on that server
+    */
     public StructResponse handleGetStruct() {
         final String FID = "Coordinator.handleGetStruct()";
         int size = manager.servers.size();
@@ -104,6 +113,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Connects to the passed in server, calls CoordWrite() on that server
+    */
     private WriteResponse quorumWrite(File file, ServerInfo server) {
         final String FID = "Coordinator.quorumWrite()";
 
@@ -120,6 +132,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Connects to the passed in server, calls CoordRead() on that server
+    */
     private ReadResponse quorumRead(int fileId, ServerInfo server) {
         final String FID = "Coordinator.quorumRead()";
         File highest = null;
@@ -143,6 +158,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Builds a quorum for write()
+    */
     private ArrayList<ServerInfo> buildWriteQuorum() {
         final String FID = "Coordinator.buildWriteQuorum()";
         Random r = new Random();
@@ -159,6 +177,9 @@ public class Coordinator {
     }
 
 
+    /** 
+    * Builds a quorum for read()
+    */
     private ArrayList<ServerInfo> buildReadQuorum() {
         final String FID = "Coordinator.buildReadQuorum()";
         Random r = new Random();

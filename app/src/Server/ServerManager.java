@@ -3,7 +3,7 @@ package Server;
 import pa3.Status;
 import pa3.File;
 import utils.Config;
-import pa3.ServerInfo;
+import Data.ServerInfo;
 
 
 public class ServerManager {
@@ -14,9 +14,9 @@ public class ServerManager {
     private final String LOG_FILE = "log/server";
 
     public ServerManager(ServerInfo info, Config c) {
-        this.info = info;
-        config = c;
-        files = c.getFiles();
+        this.info = info; // This contains info on the server
+        config = c; // Access to config
+        files = c.getFiles(); // All files in this server
     }
 
 
@@ -24,7 +24,9 @@ public class ServerManager {
         return files;
     }
 
-
+    /** 
+    * Takes fileId and returns the file that has fileId
+    */
     public File readFile(int fileId) {
         for (int i = 0; i < files.size(); i++) {
             if (files[i].id == fileId) {
@@ -35,10 +37,13 @@ public class ServerManager {
     }
 
 
+    /** 
+    * Loops for the file passed in and then sets it equal
+    */
     public Status writeFile(File file) {
         for (int i = 0; i < files.size(); i++) {
             if (files[i].id == file.id) {
-                files[i].version = file.version;
+                files[i].version = file.version + 1; // Increment version
                 return Status.SUCCESS;
             }
         }
@@ -46,12 +51,19 @@ public class ServerManager {
     }
 
 
+    /** 
+    * Returns if it's a coordinator or not
+    */
     public ServerInfo getCoordinator() {
         return config.getCoordinator();
     }
 
 
+    /** 
+    * Sets up the server's log
+    */
     public void setLog(int id)  {
+        final String FID = "ServerManager.setLog()";
         try {
             if (id == -1) {
                 fileOut = new PrintStream("log/coordLog.txt");
@@ -60,12 +72,13 @@ public class ServerManager {
             }
             System.setOut(fileOut);  
         } catch (FileNotFoundException x) {
-            System.out.println("Error: Server " + info.id + " not able to establish a server file.");
-            System.exit(1);
+            Log.error(FID, "Error: Server " + info.id + " not able to establish a server file.", x);
         }
     }
 
-
+    /** 
+    * Close's the servers log
+    */
     public void closeLog() {
         if (fileOut != null) {
             fileOut.close();

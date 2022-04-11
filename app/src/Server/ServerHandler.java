@@ -7,7 +7,7 @@ import pa3.StructResponse;
 import pa3.FolderResponse;
 import pa3.File;
 import pa3.Status;
-import pa3.ServerInfo;
+import Data.ServerInfo;
 import utils.Config;
 import utils.Log;
 import utils.RPC;

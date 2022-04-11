@@ -4,6 +4,7 @@ import data.ServerInfo;
 import utils.Log;
 
 import pa3.Status;
+import Data.ServerInfo;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.thrift.server.TThreadPoolServer;
