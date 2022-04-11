@@ -12,7 +12,7 @@ public class Log {
         System.exit(1);
     }
 
-    public static void inof(String id, String msg) {
+    public static void info(String id, String msg) {
         System.out.println(id + " - " + msg);
     }
 }
