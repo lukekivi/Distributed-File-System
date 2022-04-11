@@ -100,6 +100,8 @@ public class Coordinator {
             ServerInfo server = servers.get(i);
             // Establish connection to 'server'
             // FolderResponse folderResponse = Call CoordGetFolder()
+            FolderResponse folderResponse = coordGetFolder(FID, server);
+
             if (folderResponse.status == SUCCESS) {
                 folders.add(newFolder);
             } else {
@@ -123,6 +125,8 @@ public class Coordinator {
         if (server.id != manager.info.id) { // RPC call
             // Establish connection to `server`
             // response = Call CoordWrite();
+            response = ServerComm.coordWrite(FID, server, file.id);
+
         } else { // Local
             response = new WriteResponse();
             response.status = manager.writeFile(file);
@@ -143,6 +147,8 @@ public class Coordinator {
         if (server.id != manager.info.id) { // RPC call
             // Establish connection to `server`
             // ReadResponse response = Call CoordRead(fileId);
+            response = ServerComm.coordRead(FID, server, fileId);
+
         } else { // Local call
             response = new ReadResponse();
             response.file = manager.readFile(fileId);

@@ -32,12 +32,15 @@ public class ServerHandler implements Server.Iface {
 
     @Override
     public WriteResponse ClientWrite(File file) {
+        final String FID = "ServerHandler.ClientWrite()";
         if (isCoord) { // Is the coordinator
             return coordinator.handleWrite(file);
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
+
             // Connect to coordInfo
-            return null // Call ServerWrite(file) on coordInfo
+            // Call ServerWrite(file) on coordInfo
+            return ServerComm.serverWrite(FID, coordInfo, file.id);
         }
     }
 
@@ -71,12 +74,15 @@ public class ServerHandler implements Server.Iface {
 
     @Override
     public ReadResponse ClientRead(int fileId) {
+        final String FID = "ServerHandler.ClientRead()";
         if (isCoord) {
             return coordinator.handleRead(fileId);
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
+
             // Connect to coordInfo
-            return null // Call ServerRead(file) on coordInfo
+            // Call ServerRead(file) on coordInfo
+            return ServerComm.serverRead(FID, coordInfo, fileId);
         }
     }
 
@@ -112,12 +118,14 @@ public class ServerHandler implements Server.Iface {
 
     @Override
     public StructResponse ClientGetStruct() { // Client calls this on Server
+        final String FID = "ServerHandler.ClientGetStruct()";
         if (isCoord) {
             return coordinator.handleGetStruct();
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
+
             // Connect to coordInfo
-            return null // Call ServerPrint() on coordInfo
+            return ServerComm.serverGetStruct(FID, coordInfo);
         }
     }
 
