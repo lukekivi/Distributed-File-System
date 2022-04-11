@@ -3,6 +3,9 @@ package utils;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import data.ServerInfo;
+import data.Command;
+import data.CommandType;
+
 import java.util.*;
 import utils.Log;
 import java.net.InetAddress;
@@ -12,6 +15,9 @@ public class Config {
     final private String MACHINE_FILE_PATH = "config/machines.txt";
     final private int NUM_CONFIG_FIELDS = 4;
     final private int NUM_MACHINE_LINE_ARGS = 4;
+    final private int WRITE_COMMAND_ARGS = 2;
+    final private int READ_COMMAND_ARGS = 2;
+    final private int PRINT_COMMAND_ARGS = 1;
 
     final private Random r = new Random();
 
@@ -23,8 +29,8 @@ public class Config {
     private ServerInfo coordinator;
 
     public Config() {
-        ReadConfig();
-        ReadMachines();
+        readConfig();
+        readMachines();
     }  
 
 
@@ -78,8 +84,48 @@ public class Config {
     }
 
 
-    private void ReadConfig() {
-        final String FID = "Config.ReadConfig()";
+    public ArrayList<Command> getCommands(String commandFilePath) {
+        final String FID = "Config.getCommands()";
+        try {
+            FileInputStream file = new FileInputStream(commandFilePath);
+            Scanner scanConfig = new Scanner(file);
+            ArrayList<Command> commands = new ArrayList<Command>();
+            String[] line;
+
+            while (scanConfig.hasNextLine()) {
+                line = scanConfig.nextLine().split(" ");
+                if (line[0].equals("write")) {
+                    if (line.length != WRITE_COMMAND_ARGS) {
+                        Log.error(FID, "Write command requires " + (WRITE_COMMAND_ARGS - 1) + " args.");   
+                    }
+                    int fileId = Integer.parseInt(line[1]);
+                    commands.add(new Command(CommandType.WRITE, fileId));
+                } else if (line[0].equals("read")) {
+                    if (line.length != READ_COMMAND_ARGS) {
+                        Log.error(FID, "Read command requires " + (READ_COMMAND_ARGS - 1) + " args.");   
+                    }
+                    int fileId = Integer.parseInt(line[1]);
+                    commands.add(new Command(CommandType.READ, fileId));
+                } else if (line[0].equals("print")) {
+                    if (line.length != PRINT_COMMAND_ARGS) {
+                        Log.error(FID, "Print command requires " + (PRINT_COMMAND_ARGS - 1) + " args.");   
+                    }
+                    int fileId = -1;
+                    commands.add(new Command(CommandType.PRINT, fileId));
+                }
+            }
+
+            scanConfig.close();
+            return commands;
+        } catch (Exception exception) {
+            Log.error(FID, "Error reading file", exception);
+        }
+        return null;
+    }
+
+
+    private void readConfig() {
+        final String FID = "Config.readConfig()";
 
         int flag = 0; // used to make sure everything was set
         try {
@@ -121,8 +167,8 @@ public class Config {
         }
     }
 
-    void ReadMachines() {
-        final String FID = "Config.ReadMachines()";
+    void readMachines() {
+        final String FID = "Config.readMachines()";
         int index = 0;
 
         try {

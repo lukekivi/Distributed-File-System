@@ -15,4 +15,8 @@ public class Log {
     public static void info(String id, String msg) {
         System.out.println(id + " - " + msg);
     }
+
+    public static void info(String msg) {
+        System.out.println(msg);
+    }
 }

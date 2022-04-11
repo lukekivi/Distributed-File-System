@@ -62,7 +62,7 @@ struct FolderResponse {
  * Response with structure of entire distributed file system
  */
 struct StructResponse {
-    1: list<Folder> folder,
+    1: list<Folder> folders,
     2: Status status,
     3: string msg
 }

@@ -1,6 +1,5 @@
 package utils.RPC;
 
-
 import pa3.Server;
 import data.ServerInfo;
 import org.apache.thrift.transport.TTransport;
@@ -17,7 +16,7 @@ public class ServerConnFactory {
    /*
     * Return an active server connection. 
     */
-    public ServerConn makeSuperConn(ServerInfo serverInfo) throws TTransportException {
+    public static ServerConn makeConn(ServerInfo serverInfo) throws TTransportException {
         TTransport transport = new TSocket(serverInfo.getIp(), serverInfo.getPort());
         transport.open();
 
