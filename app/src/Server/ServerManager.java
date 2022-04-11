@@ -18,9 +18,23 @@ public class ServerManager {
     private final String LOG_FILE = "log/server";
 
     public ServerManager(ServerInfo info, Config c) {
+        final String FID = "ServerManager.ServerManager()";
         this.info = info; // This contains info on the server
         config = c; // Access to config
-        files = c.getFiles(); // All files in this server
+        Status initStatus = initFiles(c.getNumFiles()); // Get num of files
+        if (initStatus != Status.SUCCESS) {
+            Log.error(FID, "File initialization went wrong.");
+        }
+    }
+
+    public Status initFiles(int total) {
+        for (int i = 0; i < total; i++) {
+            File newFile = new File();
+            newFile.id = i;
+            newFile.version = 0;
+            files.add(newFile);
+        }
+        return Status.SUCCESS;
     }
 
 
@@ -49,7 +63,7 @@ public class ServerManager {
         for (int i = 0; i < files.size(); i++) {
             File tempFile = files.get(i);
             if (tempFile.id == file.id) {
-                tempFile.version = file.version + 1; // Increment version
+                tempFile.version = file.version; // Increment version
                 return Status.SUCCESS;
             }
         }

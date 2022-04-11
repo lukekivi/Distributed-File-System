@@ -11,17 +11,17 @@ import pa3.Folder;
 import data.ServerInfo;
 import utils.Config;
 import utils.Log;
-import utils.RPC;
 import utils.SemHelper;
 import utils.RPC.ServerComm;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
 
 public class Coordinator {
     ServerManager manager;
     SemHelper sem;
-    ArrayList<ServerInfo> servers;
+    ServerInfo[] servers;
 
 
     public Coordinator(ServerManager manager) {
@@ -34,24 +34,50 @@ public class Coordinator {
     /** 
     * Loops through a write quorum, connects, calls quorumWrite() on that server
     */
-    public WriteResponse handleWrite(File file) {
+    public WriteResponse handleWrite(int fileId) {
         final String FID = "Coordinator.handleWrite()";
         ArrayList<ServerInfo> quorum = buildWriteQuorum(); // Build the quorum
+        File highest = null;
 
-        for (int i = 0; i < quorum.size(); i++) { // Iterate throug the quorum and write
+        sem.wait(fileId); // Wait until this thread acquires lock for the specific file
+
+        for (int i = 0; i < quorum.size(); i++) { // Iterate through quorum to find the highest version
+            ServerInfo server = quorum.get(i);
+            ReadResponse readInfo = quorumRead(fileId, server);
+
+            if (readInfo.status != Status.SUCCESS) {
+                Log.error(FID, "Coordinator read failed for file " + fileId + " to " + server.getId());
+            }
+
+            if (highest == null) {
+                highest = readInfo.file;
+            } else {
+                if (readInfo.file.version > highest.version) {
+                    highest = readInfo.file;
+                }
+            }
+        }
+
+        File newFile = new File(); // New file to overwrite the others with, version incremented
+        newFile.version = highest.version + 1;
+        newFile.id = highest.id;
+
+
+        for (int i = 0; i < quorum.size(); i++) { // Iterate through the quorum and write
             ServerInfo server = quorum.get(i);
 
-            sem.wait(file.id); // Wait until this thread acquires lock for the specific file
-            WriteResponse writeInfo = quorumWrite(file, server);
+            WriteResponse writeInfo = quorumWrite(newFile, server);
             if (writeInfo.status == Status.ERROR || writeInfo.status == Status.NOT_FOUND) {
-                Log.error(FID, "Coordinator write failed for file " + file.id + " to " + server.getId());
+                Log.error(FID, "Coordinator write failed for file " + newFile.id + " to " + server.getId());
             }
-            sem.signal(file.id); // Give control back to next waiting process for the specific file
         }
+
+        sem.signal(newFile.id); // Give control back to next waiting process for the specific file
 
         WriteResponse ans = new WriteResponse();
         ans.status = Status.SUCCESS;
-        ans.msg = "Successfully updated file " + file.id + " in the write quorum";
+        ans.msg = "Successfully updated file " + newFile.id + " in the write quorum";
+
         return ans;
     }
 
@@ -59,7 +85,7 @@ public class Coordinator {
     /** 
     * Loops through a read quorum, connects, calls quorumRead() on that server
     */
-    public ReadResponse handleRead(File file) {
+    public ReadResponse handleRead(int fileId) {
         final String FID = "Coordinator.handleRead()";
         ArrayList<ServerInfo> quorum = buildReadQuorum(); // Build the quorum
         File highest = null;
@@ -67,12 +93,12 @@ public class Coordinator {
         for (int i = 0; i < quorum.size(); i++) { // Iterate throug the quorum and read
             ServerInfo server = quorum.get(i);
 
-            sem.wait(file.id); // Wait until this thread acquires lock for the specific file
-            ReadResponse readInfo = quorumRead(file.id, server);
-            if (readInfo.status == Status.ERROR || readInfo.status == Status.NOT_FOUND) {
-                Log.error(FID, "Coordinator read failed for file " + file.id + " to " + server.getId());
+            sem.wait(fileId); // Wait until this thread acquires lock for the specific file
+            ReadResponse readInfo = quorumRead(fileId, server);
+            if (readInfo.status != Status.SUCCESS) {
+                Log.error(FID, "Coordinator read failed for file " + fileId + " to " + server.getId());
             }
-            sem.signal(file.id); // Give control back to next waiting process for the specific file
+            sem.signal(fileId); // Give control back to next waiting process for the specific file
 
             if (highest == null) {
                 highest = readInfo.file;
@@ -86,7 +112,7 @@ public class Coordinator {
         ReadResponse ans = new ReadResponse();
         ans.file = highest;
         ans.status = Status.SUCCESS;
-        ans.msg = "Successfully read file " + file.id + " from the read quorum";
+        ans.msg = "Successfully read file " + fileId + " from the read quorum";
         return ans;
     }
 
@@ -96,12 +122,12 @@ public class Coordinator {
     */
     public StructResponse handleGetStruct() {
         final String FID = "Coordinator.handleGetStruct()";
-        int size = servers.size();
+        int size = servers.length;
         StructResponse response = new StructResponse();
         ArrayList<Folder> folders = new ArrayList<Folder>();
 
         for (int i = 0; i < size; i++) {
-            ServerInfo server = servers.get(i);
+            ServerInfo server = servers[i];
             // Establish connection to 'server'
             // FolderResponse folderResponse = Call CoordGetFolder()
             FolderResponse folderResponse = ServerComm.coordGetFolder(FID, server);
@@ -129,7 +155,7 @@ public class Coordinator {
         if (server.getId() != manager.info.getId()) { // RPC call
             // Establish connection to `server`
             // response = Call CoordWrite();
-            response = ServerComm.coordWrite(FID, server, file.id);
+            response = ServerComm.coordWrite(FID, server, file);
 
         } else { // Local
             response = new WriteResponse();
@@ -175,7 +201,7 @@ public class Coordinator {
         final String FID = "Coordinator.buildWriteQuorum()";
         Random r = new Random();
         int NW = manager.config.getWriteQuorum();
-        ArrayList<ServerInfo> tempServers = manager.config.getServers(); // Going to be removing from this so can't use the coordinator's var
+        ArrayList<ServerInfo> tempServers = new ArrayList(Arrays.asList(servers)); // Going to be removing from this so can't use the coordinator's var
 
         ArrayList<ServerInfo> quorum = new ArrayList<ServerInfo>();
         for (int i = 0; i < NW; i++) {
@@ -194,7 +220,7 @@ public class Coordinator {
         final String FID = "Coordinator.buildReadQuorum()";
         Random r = new Random();
         int NR = manager.config.getReadQuorum();
-        ArrayList<ServerInfo> tempServers = manager.config.getServers();
+        ArrayList<ServerInfo> tempServers = new ArrayList(Arrays.asList(servers));
 
         ArrayList<ServerInfo> quorum = new ArrayList<ServerInfo>();
         for (int i = 0; i < NR; i++) {

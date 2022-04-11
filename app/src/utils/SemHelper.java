@@ -1,5 +1,6 @@
 package utils;
 import java.util.concurrent.Semaphore;
+import java.lang.InterruptedException;
 
 public class SemHelper {
     Semaphore[] sems;
@@ -19,7 +20,12 @@ public class SemHelper {
     }
 
     public void wait(int index) {
-        sems[index].acquire();
+        final String FID = "SemHelper.wait()";
+        try {
+            sems[index].acquire();
+        } catch (InterruptedException e) {
+            Log.error(FID, "Something failed when acquiring semaphore lock", e);
+        }
     }
 
     public void signal(int index) {

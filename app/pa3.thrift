@@ -75,7 +75,7 @@ struct StructResponse {
 service Server {
     WriteResponse ClientWrite(1: i32 fileId),
     WriteResponse ServerWrite(1: i32 fileId),
-    WriteResponse CoordWrite(1: i32 fileId),
+    WriteResponse CoordWrite(1: File file),
     ReadResponse ClientRead(1: i32 fileId),
     ReadResponse ServerRead(1: i32 fileId),
     ReadResponse CoordRead(1: i32 fileId),

@@ -7,6 +7,7 @@ import pa3.StructResponse;
 import pa3.FolderResponse;
 import pa3.File;
 import pa3.Status;
+import pa3.Folder;
 import data.ServerInfo;
 import utils.Config;
 import utils.Log;
@@ -31,27 +32,27 @@ public class ServerHandler implements Server.Iface {
 
 
     @Override
-    public WriteResponse ClientWrite(File file) {
+    public WriteResponse ClientWrite(int fileId) {
         final String FID = "ServerHandler.ClientWrite()";
         if (isCoord) { // Is the coordinator
-            return coordinator.handleWrite(file);
+            return coordinator.handleWrite(fileId);
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
 
             // Connect to coordInfo
             // Call ServerWrite(file) on coordInfo
-            return ServerComm.serverWrite(FID, coordInfo, file.id);
+            return ServerComm.serverWrite(FID, coordInfo, fileId);
         }
     }
 
 
     @Override
-    public WriteResponse ServerWrite(File file) { // Always called onto Coordinator
+    public WriteResponse ServerWrite(int fileId) { // Always called onto Coordinator
         final String FID = "ServerHandler.ServerWrite()";
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
-        return coordinator.handleWrite(file);
+        return coordinator.handleWrite(fileId);
     }
 
 
@@ -100,14 +101,14 @@ public class ServerHandler implements Server.Iface {
     @Override
     public ReadResponse CoordRead(int fileId) {
         final String FID = "ServerHandler.CoordRead()";
-        ReadResponse ans = new ReadRespoinse();
+        ReadResponse ans = new ReadResponse();
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
         ans.file = manager.readFile(fileId);
         if (ans.file != null) {
             ans.status = Status.SUCCESS;
-            ans.msg = "Successfully read file " + file.id;
+            ans.msg = "Successfully read file " + fileId;
         } else {
             ans.status = Status.NOT_FOUND;
             ans.msg = "FAIL: Something went wrong, check log files";
@@ -136,7 +137,7 @@ public class ServerHandler implements Server.Iface {
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
-        return coordinator.handleGetStruct(fileId);
+        return coordinator.handleGetStruct();
     }
 
 
@@ -149,7 +150,7 @@ public class ServerHandler implements Server.Iface {
 
         response.folder = folder;
         response.status = Status.SUCCESS;
-        response.msg = "Successfully grabbed the folder for server " + manager.info.id;
+        response.msg = "Successfully grabbed the folder for server " + manager.info.getId();
 
         return response;
     }

@@ -2,6 +2,7 @@ package server;
 
 import data.ServerInfo;
 import utils.Log;
+import utils.Config;
 import pa3.Status;
 import pa3.Server;
 import org.apache.log4j.Logger;
@@ -30,13 +31,12 @@ public class FileServer {
             Logger.getRootLogger().setLevel(Level.ERROR);
 
             c = new Config();
-            String ip = InetAddress.getLocalHost().getHostName() + ".cselabs.umn.edu";
-            ServerInfo serverInfo = c.getServerInfo(ip); // Get server info
+            ServerInfo serverInfo = c.getMyServerInfo(); // Get server info
             if (serverInfo == null) {
                 Log.error(FID, "Server not found in config file");
             }
 
-            manager = new ServerManager(manager, c);
+            manager = new ServerManager(serverInfo, c);
             manager.setLog(serverInfo.getId()); // Setting the log for this server
 
             ServerHandler handler = null; // Create handler
