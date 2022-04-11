@@ -5,12 +5,10 @@
     <!-- Directories -->
     <property name="src.dir" location="src" />
     <property name="build.dir" location="build" />
-    <property name="gen.dir" location="gen-java" />
     <property name="log.dir" location="log" />
 
     <!-- Variables -->
     <property name="client.log" value="clientLog.txt"/>
-    <property name="coord.log" value="coordLog.txt"/>
 
     <path id="libs.classpath">
         <fileset dir="${env.THRIFT_LIB_PATH}">
@@ -27,7 +25,6 @@
 
     <path id="build.classpath">
         <path refid="libs.classpath" />
-        <pathelement path="${gen.dir}" />
      </path>
 
     <path id="thrift_compiler.classpath">
@@ -42,7 +39,7 @@
     <!-- Generate the thrift gen-java source -->
     <target name="generate">
         <exec failonerror="true" executable="${env.THRIFT_COMPILER_PATH}">
-           <arg line="--gen java -r pa3.thrift"/>
+           <arg line="--gen java -out src -r pa3.thrift"/>
         </exec>
     </target>
 
@@ -55,46 +52,55 @@
  
     <!-- Compile all source files -->
     <target name="compile" depends="init, generate">
-        <javac compiler="modern" includeantruntime="false" srcdir="${gen.dir}" destdir="${build.dir}" classpathref="libs.classpath" />
         <javac compiler="modern" includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" />
      </target>
  
-    <!-- Run client -->
-    <target name="client" depends="compile, cleanClientLog">
-        <echo>client:</echo>
-        <java classpathref="pa3.classpath" output="${log.dir}/${client.log}" failonerror="false" fork="true" classname="client/Client"/>
+    <!-- Run client one -->
+    <target name="clientOne" depends="compile">
+        <echo>client one:</echo>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
+            <arg line="commands/commands1.txt"/>
+        </java>
      </target>
 
-     <!-- Run coordinator -->
-    <target name="coordinator" depends="cleanLog, compile">
-        <echo>coordinator:</echo>
-        <java classpathref="pa3.classpath" output="${log.dir}/${coord.log}" failonerror="false" fork="true" classname="server/Server">
-            <arg line="1"/>
+    <!-- Run client two -->
+    <target name="clientTwo" depends="compile">
+        <echo>client two:</echo>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
+            <arg line="commands/commands2.txt"/>
+        </java>
+     </target>
+
+    <!-- Run client three -->
+    <target name="clientThree" depends="compile">
+        <echo>client three:</echo>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
+            <arg line="commands/commands3.txt"/>
+        </java>
+     </target>
+
+    <!-- Run client four -->
+    <target name="clientFour" depends="compile">
+        <echo>client four:</echo>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
+            <arg line="commands/commands4.txt"/>
         </java>
      </target>
 
     <!-- Start a server -->
     <target name="server" depends="compile">
         <echo>server:</echo>
-        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="server/server">
-            <arg line="0"/>
-        </java>
-    </target>
-
-    <!-- Clean client log -->
-    <target name="cleanClientLog">
-        <delete file="${log.dir}/${client.log}"/>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="server/server"/>
     </target>
 
     <!-- Clean super node log -->
-    <target name="cleanLog">
+    <target name="cleanLogs">
         <delete dir="${log.dir}"/>
     </target>
 
     <!-- Clean everything -->
     <target name="clean">
        <delete dir="${build.dir}"/>
-       <delete dir="${gen.dir}"/>
        <delete dir="${log.dir}"/>
     </target>
  </project>

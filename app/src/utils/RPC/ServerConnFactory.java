@@ -1,8 +1,7 @@
 package utils.RPC;
 
-
 import pa3.Server;
-import pa3.ServerInfo;
+import data.ServerInfo;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TSocket;
@@ -17,12 +16,12 @@ public class ServerConnFactory {
    /*
     * Return an active server connection. 
     */
-    public ServerConn makeSuperConn(ServerInfo serverInfo) throws TTransportException {
-        TTransport transport = new TSocket(superNodeInfo.ip, superNodeInfo.port);
+    public static ServerConn makeConn(ServerInfo serverInfo) throws TTransportException {
+        TTransport transport = new TSocket(serverInfo.getIp(), serverInfo.getPort());
         transport.open();
 
         TProtocol protocol = new  TBinaryProtocol(transport);
-        Server.Client client = new SuperNode.Client(protocol);
+        Server.Client client = new Server.Client(protocol);
 
         return new ServerConn(client, transport);
    }

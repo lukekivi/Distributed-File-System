@@ -26,7 +26,8 @@ struct File {
  * Folder is used to pass files via RPC
  */
 struct Folder {
-    1: list<File> files
+    1: i32 serverId
+    2: list<File> files
 }
 
 
