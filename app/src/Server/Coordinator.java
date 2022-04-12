@@ -135,14 +135,12 @@ public class Coordinator {
             if (server.getId() == manager.info.getId()) { // Server is this one, don't initiate RPC call
                 Folder folder = new Folder();
                 folder.serverId = manager.info.getId();
-                Log.info(FID, "Server id is " + folder.serverId);
                 folder.files = manager.files;
                 folders.add(folder);
             } else {
                 folderResponse = ServerComm.coordGetFolder(FID, server);
                 if (folderResponse.status == Status.SUCCESS) {
                     folders.add(folderResponse.folder);
-                    Log.info(FID, "Server id is " + folderResponse.folder.serverId);
                 } else {
                     Log.error(FID, "Error when connecting to server " + server.getId());
                 }
@@ -150,6 +148,7 @@ public class Coordinator {
         }
         response.status = Status.SUCCESS;
         response.msg = "Successfully got each server's folder";
+        response.folders = folders;
         
         return response;
     }

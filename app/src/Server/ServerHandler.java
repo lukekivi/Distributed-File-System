@@ -140,12 +140,6 @@ public class ServerHandler implements Server.Iface {
             Log.error(FID, "This is not a coordinator");
         }
         StructResponse response = coordinator.handleGetStruct();
-        for (Folder folder : response.folders) {
-            Log.info(FID, "Server id: " + folder.serverId);
-            for (File file : folder.files) {
-                Log.info(FID, "File id: " + file.id);
-            }
-        }
         return response;
     }
 
@@ -161,7 +155,6 @@ public class ServerHandler implements Server.Iface {
         Folder folder = new Folder();
         folder.files = manager.files;
         folder.serverId = manager.info.getId();
-        Log.info(FID, "The server id is " + manager.info.getId());
 
         response.folder = folder;
         response.status = Status.SUCCESS;
