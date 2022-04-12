@@ -21,6 +21,7 @@ public class ServerManager {
         final String FID = "ServerManager.ServerManager()";
         this.info = info; // This contains info on the server
         config = c; // Access to config
+        files = new ArrayList<File>();
         Status initStatus = initFiles(c.getNumFiles()); // Get num of files
         if (initStatus != Status.SUCCESS) {
             Log.error(FID, "File initialization went wrong.");
