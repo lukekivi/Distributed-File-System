@@ -128,14 +128,24 @@ public class Coordinator {
 
         for (int i = 0; i < size; i++) {
             ServerInfo server = servers[i];
+            FolderResponse folderResponse;
             // Establish connection to 'server'
             // FolderResponse folderResponse = Call CoordGetFolder()
-            FolderResponse folderResponse = ServerComm.coordGetFolder(FID, server);
 
-            if (folderResponse.status == Status.SUCCESS) {
-                folders.add(folderResponse.folder);
+            if (server.getId() == manager.info.getId()) { // Server is this one, don't initiate RPC call
+                Folder folder = new Folder();
+                folder.serverId = manager.info.getId();
+                Log.info(FID, "Server id is " + folder.serverId);
+                folder.files = manager.files;
+                folders.add(folder);
             } else {
-                Log.error(FID, "Error when connecting to server " + server.getId());
+                folderResponse = ServerComm.coordGetFolder(FID, server);
+                if (folderResponse.status == Status.SUCCESS) {
+                    folders.add(folderResponse.folder);
+                    Log.info(FID, "Server id is " + folderResponse.folder.serverId);
+                } else {
+                    Log.error(FID, "Error when connecting to server " + server.getId());
+                }
             }
         }
         response.status = Status.SUCCESS;

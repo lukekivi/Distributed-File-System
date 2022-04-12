@@ -20,14 +20,16 @@ public class ServerHandler implements Server.Iface {
     private Coordinator coordinator;
     private boolean isCoord;
 
-    public ServerHandler(ServerManager manager, Coordinator coordinator) {
+    public ServerHandler(ServerManager manager) {
         this.manager = manager;
+        this.coordinator = null;
+        isCoord = false;
+    }
+
+    public ServerHandler(Coordinator coordinator) {
+        this.manager = null;
         this.coordinator = coordinator;
-        if (manager.getCoordinator().getId() == manager.info.getId()) {
-            isCoord = true;
-        } else {
-            isCoord = false;
-        }
+        isCoord = true;
     }
 
 
@@ -137,16 +139,29 @@ public class ServerHandler implements Server.Iface {
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
-        return coordinator.handleGetStruct();
+        StructResponse response = coordinator.handleGetStruct();
+        for (Folder folder : response.folders) {
+            Log.info(FID, "Server id: " + folder.serverId);
+            for (File file : folder.files) {
+                Log.info(FID, "File id: " + file.id);
+            }
+        }
+        return response;
     }
 
 
     @Override
     public FolderResponse CoordGetFolder() { // Coordinator calls this on each server
+        final String FID = "ServerHandler.CoordGetFolder()";
+        if (isCoord) {
+            Log.error(FID, "This is a coordinator");
+        }
         FolderResponse response = new FolderResponse();
 
         Folder folder = new Folder();
         folder.files = manager.files;
+        folder.serverId = manager.info.getId();
+        Log.info(FID, "The server id is " + manager.info.getId());
 
         response.folder = folder;
         response.status = Status.SUCCESS;

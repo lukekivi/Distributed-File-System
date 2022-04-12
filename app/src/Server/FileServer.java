@@ -43,12 +43,14 @@ public class FileServer {
             Coordinator coordinator = null;
 
             if (serverInfo.isCoord()) { // This is coordinator
+                Log.info(FID, "This server is the coordinator");
                 manager.setLog(serverInfo.getId()); // Setting the log for the coordinator
                 coordinator = new Coordinator(manager);
-                handler = new ServerHandler(null, coordinator);
+                handler = new ServerHandler(coordinator);
             } else { // This is not coordinator
+                Log.info(FID, "This server is NOT the coordinator");
                 manager.setLog(serverInfo.getId()); // Setting the log for this server
-                handler = new ServerHandler(manager, null);
+                handler = new ServerHandler(manager);
             }
 
             // Perform server duties
