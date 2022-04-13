@@ -30,18 +30,20 @@ public class FileServer {
         try {
             Logger.getRootLogger().setLevel(Level.ERROR);
 
-            c = new Config();
+            c = new Config(); // Creating an instance of our config file
             ServerInfo serverInfo = c.getMyServerInfo(); // Get server info
             if (serverInfo == null) {
                 Log.error(FID, "Server not found in config file");
             }
 
-            manager = new ServerManager(serverInfo, c);
+            manager = new ServerManager(serverInfo, c); // Creating a manager using this server's info
             manager.setLog(serverInfo.getId()); // Setting the log for this server
 
             ServerHandler handler = null; // Create handler
-            Coordinator coordinator = null;
+            Coordinator coordinator = null; // Create coordinator
 
+            // Server has a null 'coordinator' field and populated 'manager' field
+            // Coordinator has a null 'manager' field and a populated 'coordinator field which contains a field for the manager
             if (serverInfo.isCoord()) { // This is coordinator
                 Log.info(FID, "This server is the coordinator");
                 manager.setLog(serverInfo.getId()); // Setting the log for the coordinator
@@ -69,7 +71,9 @@ public class FileServer {
 
 
     /**
-     * Start a multiThreaded thrift server. 
+     * Start the multi threaded server
+     * @param processor used to start the server
+     * @param port the port at which the server can be accessed
      */
     public static void multiThreadedServer(Server.Processor processor, int port) {
         final String FID = "FileServer.multiThreadedServer()";

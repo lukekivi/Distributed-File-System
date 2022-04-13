@@ -18,54 +18,66 @@ import org.apache.thrift.TException;
 public class ServerHandler implements Server.Iface {
     private ServerManager manager;
     private Coordinator coordinator;
-    private boolean isCoord;
+    private boolean isCoord; // True if coordinator, false if ordinary server
 
-    public ServerHandler(ServerManager manager) {
+    public ServerHandler(ServerManager manager) { // Called if ordinary server
         this.manager = manager;
         this.coordinator = null;
         isCoord = false;
     }
 
-    public ServerHandler(Coordinator coordinator) {
+    public ServerHandler(Coordinator coordinator) { // Called if a coordinator
         this.manager = null;
         this.coordinator = coordinator;
         isCoord = true;
     }
 
 
+    /**
+     * Sends a write request to a random server/coordinator
+     * @param fileId the file id of the write call
+     * @return Outcome/response of the write request
+     */
     @Override
-    public WriteResponse ClientWrite(int fileId) {
+    public WriteResponse ClientWrite(int fileId) { // Always called by a Client onto a Server/Coordinator
         final String FID = "ServerHandler.ClientWrite()";
         if (isCoord) { // Is the coordinator
-            return coordinator.handleWrite(fileId);
+            return coordinator.handleWrite(fileId); // Start write call, this is coordinator
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
-
-            // Connect to coordInfo
-            // Call ServerWrite(file) on coordInfo
-            return ServerComm.serverWrite(FID, coordInfo, fileId);
+            return ServerComm.serverWrite(FID, coordInfo, fileId); // Connect to coordinator and call serverWrite()
         }
     }
 
 
+    /**
+     * Sends a write request to the coordinator
+     * @param fileId the file id of the write call
+     * @return Outcome/response of the write request
+     */
     @Override
-    public WriteResponse ServerWrite(int fileId) { // Always called onto Coordinator
+    public WriteResponse ServerWrite(int fileId) { // Always called by a Server onto a Coordinator
         final String FID = "ServerHandler.ServerWrite()";
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
-        return coordinator.handleWrite(fileId);
+        return coordinator.handleWrite(fileId); // Handle the write call
     }
 
 
+    /**
+     * Calls the write call of a file onto a server
+     * @param fileId the file id of the write call
+     * @return Outcome/response of the write request
+     */
     @Override
-    public WriteResponse CoordWrite(File file) {
+    public WriteResponse CoordWrite(File file) { // Always called by a Coordinator onto a Server
         final String FID = "ServerHandler.CoordWrite()";
         WriteResponse ans = new WriteResponse();
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
-        ans.status = manager.writeFile(file);
+        ans.status = manager.writeFile(file); // Conduct write request on the file on this server
         if (ans.status == Status.SUCCESS) {
             ans.msg = "Successfully read file " + file.id;
         } else {
@@ -75,39 +87,51 @@ public class ServerHandler implements Server.Iface {
     }
 
 
+    /**
+     * Sends a read request to a random server/coordinator
+     * @param fileId the file id of the read call
+     * @return Outcome/response of the read request
+     */
     @Override
-    public ReadResponse ClientRead(int fileId) {
+    public ReadResponse ClientRead(int fileId) { // Always called by a Client onto a Server/Coordinator
         final String FID = "ServerHandler.ClientRead()";
         if (isCoord) {
-            return coordinator.handleRead(fileId);
+            return coordinator.handleRead(fileId); // Start write call, this is coordinator
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
-
-            // Connect to coordInfo
-            // Call ServerRead(file) on coordInfo
-            return ServerComm.serverRead(FID, coordInfo, fileId);
+            return ServerComm.serverRead(FID, coordInfo, fileId); // Connect to coordinator and call serverRead()
         }
     }
 
 
+    /**
+     * Sends a read request to the coordinator
+     * @param fileId the file id of the read call
+     * @return Outcome/response of the read request
+     */
     @Override
-    public ReadResponse ServerRead(int fileId) {
+    public ReadResponse ServerRead(int fileId) { // Always called by a Server onto a Coordinator
         final String FID = "ServerHandler.ServerRead()";
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
-        return coordinator.handleRead(fileId);
+        return coordinator.handleRead(fileId); // Handle the read call
     }
 
 
+    /**
+     * Calls the read call of a file onto a server
+     * @param fileId the file id of the read call
+     * @return Outcome/response of the read request
+     */
     @Override
-    public ReadResponse CoordRead(int fileId) {
+    public ReadResponse CoordRead(int fileId) { // Always called by a Coordinator onto a Server
         final String FID = "ServerHandler.CoordRead()";
         ReadResponse ans = new ReadResponse();
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
-        ans.file = manager.readFile(fileId);
+        ans.file = manager.readFile(fileId); // Conduct read request on the file on this server
         if (ans.file != null) {
             ans.status = Status.SUCCESS;
             ans.msg = "Successfully read file " + fileId;
@@ -119,42 +143,54 @@ public class ServerHandler implements Server.Iface {
     }
 
 
+    /**
+     * Sends a request for the servers' structures to a random server/coordinator
+     * @return Outcome/response of the structure request
+     */
     @Override
-    public StructResponse ClientGetStruct() { // Client calls this on Server
+    public StructResponse ClientGetStruct() { // Always called by a Client onto a Server/Coordinator
         final String FID = "ServerHandler.ClientGetStruct()";
         if (isCoord) {
-            return coordinator.handleGetStruct();
+            return coordinator.handleGetStruct(); // Start structure request, this is coordinator
         } else {
             ServerInfo coordInfo = manager.config.getCoordinator();
 
             // Connect to coordInfo
-            return ServerComm.serverGetStruct(FID, coordInfo);
+            return ServerComm.serverGetStruct(FID, coordInfo); // Connect to coordinator and call serverGetStruct()
         }
     }
 
 
+    /**
+     * Sends a request for the servers' structures to the coordinator
+     * @return Outcome/response of the structure request
+     */
     @Override
-    public StructResponse ServerGetStruct() { // Server calls this on Coordinator
+    public StructResponse ServerGetStruct() { // Always called by a Server onto a Coordinator
         final String FID = "ServerHandler.ServerGetStruct()";
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
-        StructResponse response = coordinator.handleGetStruct();
+        StructResponse response = coordinator.handleGetStruct(); // Handle the structure request
         return response;
     }
 
 
+    /**
+     * Grabs the folder of a server which contains all of the files
+     * @return The server's folder and the response
+     */
     @Override
-    public FolderResponse CoordGetFolder() { // Coordinator calls this on each server
+    public FolderResponse CoordGetFolder() { // Always called by a Coordinator onto a Server
         final String FID = "ServerHandler.CoordGetFolder()";
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
         FolderResponse response = new FolderResponse();
 
-        Folder folder = new Folder();
-        folder.files = manager.files;
-        folder.serverId = manager.info.getId();
+        Folder folder = new Folder(); // Create a folder
+        folder.files = manager.files; // Add the files
+        folder.serverId = manager.info.getId(); // Mark it with the server id
 
         response.folder = folder;
         response.status = Status.SUCCESS;

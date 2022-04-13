@@ -27,20 +27,22 @@ public class Coordinator {
 
     public Coordinator(ServerManager manager) {
         this.manager = manager;
-        this.sem = new SemHelper(manager.files.size());
-        servers = manager.config.getServers();
-        numFiles = manager.files.size();
+        this.sem = new SemHelper(manager.files.size()); // Semaphores for each file
+        servers = manager.config.getServers(); // List of servers
+        numFiles = manager.files.size(); // Number of files on each server
     }
 
 
-    /** 
-    * Loops through a write quorum, connects, calls quorumWrite() on that server
-    */
+    /**
+     * Loops through a write quorum, connects, calls quorumWrite() on that server
+     * @param fileId the file id
+     * @return Outcome/response of the write
+     */
     public WriteResponse handleWrite(int fileId) {
         final String FID = "Coordinator.handleWrite()";
         WriteResponse ans = new WriteResponse();
 
-        if (fileId >= numFiles) {
+        if (fileId >= numFiles) { // File passed in is not valid
             ans.status = Status.NOT_FOUND;
             ans.msg = "Input file " + fileId + " not found.";
             return ans;
@@ -51,19 +53,19 @@ public class Coordinator {
 
         sem.wait(fileId); // Wait until this thread acquires lock for the specific file
 
-        for (int i = 0; i < quorum.size(); i++) { // Iterate through quorum to find the highest version
+        for (int i = 0; i < quorum.size(); i++) { // Iterate through quorum to find the highest version of the file first
             ServerInfo server = quorum.get(i);
-            ReadResponse readInfo = quorumRead(fileId, server);
+            ReadResponse readInfo = quorumRead(fileId, server); // Read helper for the quorum
 
-            if (readInfo.status != Status.SUCCESS) {
+            if (readInfo.status != Status.SUCCESS) { // Something went wrong
                 Log.error(FID, "Coordinator read failed for file " + fileId + " to " + server.getId());
             }
 
-            if (highest == null) {
+            if (highest == null) { // Can't compare a null object
                 highest = readInfo.file;
             } else {
                 if (readInfo.file.version > highest.version) {
-                    highest = readInfo.file;
+                    highest = readInfo.file; // Found a new highest version
                 }
             }
         }
@@ -76,8 +78,8 @@ public class Coordinator {
         for (int i = 0; i < quorum.size(); i++) { // Iterate through the quorum and write
             ServerInfo server = quorum.get(i);
 
-            WriteResponse writeInfo = quorumWrite(newFile, server);
-            if (writeInfo.status == Status.ERROR || writeInfo.status == Status.NOT_FOUND) {
+            WriteResponse writeInfo = quorumWrite(newFile, server); // Write helper for the quorum
+            if (writeInfo.status != Status.SUCCESS) { // Something went wrong with the write
                 Log.error(FID, "Coordinator write failed for file " + newFile.id + " to " + server.getId());
             }
         }
@@ -91,14 +93,16 @@ public class Coordinator {
     }
 
 
-    /** 
-    * Loops through a read quorum, connects, calls quorumRead() on that server
-    */
+    /**
+     * Loops through a read quorum, connects, calls quorumRead() on that server
+     * @param fileId the file id
+     * @return Outcome/response of the read
+     */
     public ReadResponse handleRead(int fileId) {
         final String FID = "Coordinator.handleRead()";
         ReadResponse ans = new ReadResponse();
 
-        if (fileId >= numFiles) {
+        if (fileId >= numFiles) { // File passed in is not valid
             ans.file = null;
             ans.status = Status.NOT_FOUND;
             ans.msg = "Input file " + fileId + " not found.";
@@ -112,17 +116,17 @@ public class Coordinator {
             ServerInfo server = quorum.get(i);
 
             sem.wait(fileId); // Wait until this thread acquires lock for the specific file
-            ReadResponse readInfo = quorumRead(fileId, server);
-            if (readInfo.status != Status.SUCCESS) {
+            ReadResponse readInfo = quorumRead(fileId, server); // Read helper for the quorum
+            if (readInfo.status != Status.SUCCESS) { // Something went wrong in the read call
                 Log.error(FID, "Coordinator read failed for file " + fileId + " to " + server.getId());
             }
             sem.signal(fileId); // Give control back to next waiting process for the specific file
 
-            if (highest == null) {
+            if (highest == null) { // Can't compare nulls
                 highest = readInfo.file;
             } else {
                 if (readInfo.file.version > highest.version) {
-                    highest = readInfo.file;
+                    highest = readInfo.file; // Found a higher version of the file
                 }
             }
         }
@@ -134,29 +138,28 @@ public class Coordinator {
     }
 
 
-    /** 
-    * Loops through each server and grabs a folder that contains all files on that server
-    */
+    /**
+     * Loops through each server and grabs a folder that contains all files on that server
+     * @return struct holding the folders for each server that contains all of the files
+     */
     public StructResponse handleGetStruct() {
         final String FID = "Coordinator.handleGetStruct()";
-        int size = servers.length;
+        int size = servers.length; // Number of servers
         StructResponse response = new StructResponse();
         ArrayList<Folder> folders = new ArrayList<Folder>();
 
         for (int i = 0; i < size; i++) {
             ServerInfo server = servers[i];
             FolderResponse folderResponse;
-            // Establish connection to 'server'
-            // FolderResponse folderResponse = Call CoordGetFolder()
 
             if (server.getId() == manager.info.getId()) { // Server is this one, don't initiate RPC call
-                Folder folder = new Folder();
+                Folder folder = new Folder(); // Create a folder
                 folder.serverId = manager.info.getId();
-                folder.files = manager.files;
-                folders.add(folder);
-            } else {
+                folder.files = manager.files; // Grab files
+                folders.add(folder); // Add server's folder to list of folders
+            } else { // Inititate RPC call on the currently looped server
                 folderResponse = ServerComm.coordGetFolder(FID, server);
-                if (folderResponse.status == Status.SUCCESS) {
+                if (folderResponse.status == Status.SUCCESS) { // Check statement to make sure the call worked
                     folders.add(folderResponse.folder);
                 } else {
                     Log.error(FID, "Error when connecting to server " + server.getId());
@@ -171,47 +174,49 @@ public class Coordinator {
     }
 
 
-    /** 
-    * Connects to the passed in server, calls CoordWrite() on that server
-    */
+    /**
+     * Connects to the passed in server, calls CoordWrite() on that server
+     * @param file the file that the others should be overwritten with
+     * @param server the server that needs its file overwritten
+     * @return Outcome/response of the write
+     */
     private WriteResponse quorumWrite(File file, ServerInfo server) {
         final String FID = "Coordinator.quorumWrite()";
 
         WriteResponse response;
-        if (server.getId() != manager.info.getId()) { // RPC call
-            // Establish connection to `server`
-            // response = Call CoordWrite();
+        if (server.getId() != manager.info.getId()) { // RPC call on server passed in
             response = ServerComm.coordWrite(FID, server, file);
 
         } else { // Local
             response = new WriteResponse();
-            response.status = manager.writeFile(file);
+            response.status = manager.writeFile(file); // Write the file
             response.msg = "Successfully updated file " + file.id + " for server " + manager.info.getId();
         }
         return response;
     }
 
 
-    /** 
-    * Connects to the passed in server, calls CoordRead() on that server
-    */
+    /**
+     * Connects to the passed in server, calls CoordRead() on that server
+     * @param fileId the file id
+     * @param server the server that the read is to be called on
+     * @return Outcome/response of the read
+     */
     private ReadResponse quorumRead(int fileId, ServerInfo server) {
         final String FID = "Coordinator.quorumRead()";
         File highest = null;
         ReadResponse response;
 
         if (server.getId() != manager.info.getId()) { // RPC call
-            // Establish connection to `server`
-            // ReadResponse response = Call CoordRead(fileId);
-            response = ServerComm.coordRead(FID, server, fileId);
+            response = ServerComm.coordRead(FID, server, fileId); // Call coordRead on the server passed in
 
         } else { // Local call
             response = new ReadResponse();
             response.file = manager.readFile(fileId);
-            if (response.file != null) {
+            if (response.file != null) { // File was found
                 response.status = Status.SUCCESS;
                 response.msg = "Successfully read file " + fileId + " from server " + manager.info.getId();
-            } else {
+            } else { // File wasn't found
                 response.status = Status.ERROR;
                 response.msg = "Failed to read file " + fileId + " from server " + manager.info.getId();
             }
@@ -220,39 +225,41 @@ public class Coordinator {
     }
 
 
-    /** 
-    * Builds a quorum for write()
-    */
+    /**
+     * Builds a quorum for write()
+     * @return writequorum which is a list of servers that are randomly chosen
+     */
     private ArrayList<ServerInfo> buildWriteQuorum() {
         final String FID = "Coordinator.buildWriteQuorum()";
         Random r = new Random();
-        int NW = manager.config.getWriteQuorum();
-        ArrayList<ServerInfo> tempServers = new ArrayList(Arrays.asList(servers)); // Going to be removing from this so can't use the coordinator's var
+        int nW = manager.config.getWriteQuorum(); // Size of the write quorum
+        ArrayList<ServerInfo> tempServers = new ArrayList(Arrays.asList(servers)); // Create a new list of servers so we can remove the servers we choose
 
-        ArrayList<ServerInfo> quorum = new ArrayList<ServerInfo>();
-        for (int i = 0; i < NW; i++) {
-            int index = r.nextInt(tempServers.size());
-            quorum.add(tempServers.get(index));
-            tempServers.remove(index);
+        ArrayList<ServerInfo> quorum = new ArrayList<ServerInfo>(); // The quorum
+        for (int i = 0; i < nW; i++) {
+            int index = r.nextInt(tempServers.size()); // Get a random server from the list
+            quorum.add(tempServers.get(index)); // Add it to the quorum
+            tempServers.remove(index); // Remove the chosen server from the pool of available ones
         }
         return quorum;
     }
 
 
-    /** 
-    * Builds a quorum for read()
-    */
+    /**
+     * Builds a quorum for read()
+     * @return writequorum which is a list of servers that are randomly chosen
+     */
     private ArrayList<ServerInfo> buildReadQuorum() {
         final String FID = "Coordinator.buildReadQuorum()";
         Random r = new Random();
-        int NR = manager.config.getReadQuorum();
-        ArrayList<ServerInfo> tempServers = new ArrayList(Arrays.asList(servers));
+        int NR = manager.config.getReadQuorum(); // Size of the read quorum
+        ArrayList<ServerInfo> tempServers = new ArrayList(Arrays.asList(servers)); // Create a new list of servers so we can remove the servers we choose
 
-        ArrayList<ServerInfo> quorum = new ArrayList<ServerInfo>();
+        ArrayList<ServerInfo> quorum = new ArrayList<ServerInfo>(); // The quorum
         for (int i = 0; i < NR; i++) {
-            int index = r.nextInt(tempServers.size());
-            quorum.add(tempServers.get(index));
-            tempServers.remove(index);
+            int index = r.nextInt(tempServers.size()); // Get a random server from the list
+            quorum.add(tempServers.get(index)); // Add it to the quorum
+            tempServers.remove(index); // Remove the chosen server from the pool of available ones
         }
         return quorum;
     }
