@@ -113,7 +113,7 @@ public class ServerHandler implements Server.Iface {
             ans.msg = "Successfully read file " + fileId;
         } else {
             ans.status = Status.NOT_FOUND;
-            ans.msg = "FAIL: Something went wrong, check log files";
+            ans.msg = "FAIL: File not found";
         }
         return ans;
     }

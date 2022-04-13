@@ -22,12 +22,14 @@ public class Coordinator {
     ServerManager manager;
     SemHelper sem;
     ServerInfo[] servers;
+    int numFiles;
 
 
     public Coordinator(ServerManager manager) {
         this.manager = manager;
         this.sem = new SemHelper(manager.files.size());
         servers = manager.config.getServers();
+        numFiles = manager.files.size();
     }
 
 
@@ -36,6 +38,14 @@ public class Coordinator {
     */
     public WriteResponse handleWrite(int fileId) {
         final String FID = "Coordinator.handleWrite()";
+        WriteResponse ans = new WriteResponse();
+
+        if (fileId >= numFiles) {
+            ans.status = Status.NOT_FOUND;
+            ans.msg = "Input file " + fileId + " not found.";
+            return ans;
+        }
+
         ArrayList<ServerInfo> quorum = buildWriteQuorum(); // Build the quorum
         File highest = null;
 
@@ -74,7 +84,6 @@ public class Coordinator {
 
         sem.signal(newFile.id); // Give control back to next waiting process for the specific file
 
-        WriteResponse ans = new WriteResponse();
         ans.status = Status.SUCCESS;
         ans.msg = "Successfully updated file " + newFile.id + " in the write quorum";
 
@@ -87,6 +96,15 @@ public class Coordinator {
     */
     public ReadResponse handleRead(int fileId) {
         final String FID = "Coordinator.handleRead()";
+        ReadResponse ans = new ReadResponse();
+
+        if (fileId >= numFiles) {
+            ans.file = null;
+            ans.status = Status.NOT_FOUND;
+            ans.msg = "Input file " + fileId + " not found.";
+            return ans;
+        }
+
         ArrayList<ServerInfo> quorum = buildReadQuorum(); // Build the quorum
         File highest = null;
 
@@ -109,7 +127,6 @@ public class Coordinator {
             }
         }
 
-        ReadResponse ans = new ReadResponse();
         ans.file = highest;
         ans.status = Status.SUCCESS;
         ans.msg = "Successfully read file " + fileId + " from the read quorum";

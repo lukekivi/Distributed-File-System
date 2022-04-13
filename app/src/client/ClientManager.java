@@ -8,6 +8,7 @@ import data.Command;
 import data.ServerInfo;
 import utils.Config;
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 import pa3.Server;
@@ -45,6 +46,8 @@ public class ClientManager {
                     case PRINT:
                         handlePrint(serverConn.getClient());
                         break;
+                    case CHECK:
+                        handleCheck(serverConn.getClient());
                 }
             }
 
@@ -65,7 +68,7 @@ public class ClientManager {
                 Log.info("Read File[" + readResponse.file.id + "] = " + readResponse.file.version);
 
             } else if (readResponse.status == Status.NOT_FOUND) {
-                Log.info("Attempted to read File[" + readResponse.file.id + "] but it was not found.");
+                Log.info("Attempted to read File[" + fileId + "] but it was not found.");
 
             } else {
                 Log.info("Attempted to read from File[" + fileId + "] but an error ocurred.\n\t- " + readResponse.msg);
@@ -120,6 +123,54 @@ public class ClientManager {
 
         } catch (TException x) {
             Log.error(FID, "Error getting struct of server", x);
+        }
+    }
+
+
+    private void handleCheck(Server.Client client) {
+        final String FID = "ClientManager.handleCheck()";
+        try {
+            StructResponse layout = client.ClientGetStruct();
+            if (layout.status != Status.SUCCESS) {
+                Log.error(FID, "Attempted get structure of file system but an error occurred.\n\t- " + layout.msg);
+            }
+            
+            List<Folder> folders = layout.folders;
+            int nW = config.getWriteQuorum(); // Get write quorum size to use as expected value
+            int numFiles = config.getNumFiles();
+            int numServers = config.getNumServers();
+            int[][] fileVersions = new int[numFiles][numServers]; // Nested array, outer is files and inner is servers
+
+            // Populate the nested array
+            for (int i = 0; i < numFiles; i++) { // Iterate through each server's folder
+                for (int j = 0; j < numServers; j++) { // Iterate through each file in the folder
+                    Folder folder = folders.get(j);
+                    File file = folder.files.get(i);
+                    fileVersions[i][j] = file.version;
+                }
+            }
+
+            for (int i = 0; i < numFiles; i++) {
+
+                int highest = 0;
+                for (int j = 0; j < numServers; j++) { // Find the highest version number
+                    if (fileVersions[i][j] > highest) {
+                        highest = fileVersions[i][j];
+                    }
+                }
+
+                int counter = 0;
+                for (int j = 0; j < numServers; j++) { // Check how many servers have the max version number
+                    if (fileVersions[i][j] == highest) {
+                        counter += 1;
+                    }
+                }
+                Log.info(FID, "File " + i + ": Version " + highest + "\n\t" + counter + "/" + nW + " servers had this version number.");
+            }
+            
+
+        } catch (TException x) {
+            Log.error(FID, "Error writing to server", x);
         }
     }
 

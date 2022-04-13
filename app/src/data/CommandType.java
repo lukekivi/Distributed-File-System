@@ -1,5 +1,5 @@
 package data;
 
 public enum CommandType {
-    WRITE, READ, PRINT
+    WRITE, READ, PRINT, CHECK
 }

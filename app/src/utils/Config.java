@@ -18,6 +18,7 @@ public class Config {
     final private int WRITE_COMMAND_ARGS = 2;
     final private int READ_COMMAND_ARGS = 2;
     final private int PRINT_COMMAND_ARGS = 1;
+    final private int CHECK_COMMAND_ARGS = 1;
 
     final private Random r = new Random();
 
@@ -46,6 +47,11 @@ public class Config {
     
     public ServerInfo[] getServers() {
         return servers;
+    }
+
+
+    public int getNumServers() {
+        return servers.length;
     }
 
 
@@ -112,9 +118,16 @@ public class Config {
                     }
                     int fileId = -1;
                     commands.add(new Command(CommandType.PRINT, fileId));
+                } else if (line[0].equals("check")) {
+                    if (line.length != CHECK_COMMAND_ARGS) {
+                        Log.error(FID, "Check command requires " + (CHECK_COMMAND_ARGS - 1) + " args.");   
+                    }
+                    int fileId = -1;
+                    commands.add(new Command(CommandType.CHECK, fileId));
                 }
             }
 
+            Collections.shuffle(commands);
             scanConfig.close();
             return commands;
         } catch (Exception exception) {
