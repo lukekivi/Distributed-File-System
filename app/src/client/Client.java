@@ -31,11 +31,11 @@ public class Client {
         String commandFilePath = args[0];
 
         long startTime = System.nanoTime();
-        manager.testConfig();
+        // manager.testConfig();
+        manager.runCommands(commandFilePath);
         long endTime   = System.nanoTime();
         long totalTime = endTime - startTime;
         Log.info("Commands completed in " + totalTime + " seconds.");
-        // manager.runCommands(commandFilePath);
     }
 
     private static void setLog() {

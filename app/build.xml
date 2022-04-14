@@ -87,10 +87,18 @@
         </java>
      </target>
 
+    <!-- Run client 'check' -->
+    <target name="clientCheck" depends="compile">
+        <echo>client check:</echo>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
+            <arg line="commands/commandsCheck.txt"/>
+        </java>
+     </target>
+
     <!-- Start a server -->
     <target name="server" depends="compile">
         <echo>server:</echo>
-        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="server/server"/>
+        <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="server/FileServer"/>
     </target>
 
     <!-- Clean super node log -->

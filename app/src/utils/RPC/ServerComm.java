@@ -1,6 +1,7 @@
 package utils.RPC;
 
 import data.ServerInfo;
+import pa3.File;
 import pa3.Folder;
 import pa3.FolderResponse;
 import pa3.ReadResponse;
@@ -41,12 +42,12 @@ public class ServerComm {
     }
 
 
-    public static WriteResponse coordWrite(String from, ServerInfo serverInfo, int fileId) {
+    public static WriteResponse coordWrite(String from, ServerInfo serverInfo, File file) {
         final String FID = "ServerComm.coordWrite()";
         WriteResponse writeResponse = null;
         try {
             ServerConn serverConn = ServerConnFactory.makeConn(serverInfo);
-            writeResponse = serverConn.getClient().CoordWrite(fileId);
+            writeResponse = serverConn.getClient().CoordWrite(file);
 
             serverConn.close();
         } catch (TTransportException x) {
