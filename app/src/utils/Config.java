@@ -127,7 +127,6 @@ public class Config {
                 }
             }
 
-            Collections.shuffle(commands);
             scanConfig.close();
             return commands;
         } catch (Exception exception) {

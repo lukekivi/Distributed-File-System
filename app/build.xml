@@ -55,35 +55,35 @@
         <javac compiler="modern" includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" />
      </target>
  
-    <!-- Run client one -->
-    <target name="clientOne" depends="compile">
-        <echo>client one:</echo>
+    <!-- Run write heavy client -->
+    <target name="clientWriteHeavy" depends="compile">
+        <echo>write heavy client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
-            <arg line="commands/commands1.txt"/>
+            <arg line="commands/commandsWriteHeavy.txt"/>
         </java>
      </target>
 
-    <!-- Run client two -->
-    <target name="clientTwo" depends="compile">
-        <echo>client two:</echo>
+    <!-- Run ready heavy client -->
+    <target name="clientReadHeavy" depends="compile">
+        <echo>read heavy client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
-            <arg line="commands/commands2.txt"/>
+            <arg line="commands/commandsReadHeavy.txt"/>
         </java>
      </target>
 
     <!-- Run client three -->
-    <target name="clientThree" depends="compile">
-        <echo>client three:</echo>
+    <target name="clientMixed" depends="compile">
+        <echo>mixed client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
-            <arg line="commands/commands3.txt"/>
+            <arg line="commands/commandsMixed.txt"/>
         </java>
      </target>
 
-    <!-- Run client four -->
-    <target name="clientFour" depends="compile">
-        <echo>client four:</echo>
+    <!-- Run custom client -->
+    <target name="client" depends="compile">
+        <echo>client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
-            <arg line="commands/commands4.txt"/>
+            <arg line="commands/commands.txt"/>
         </java>
      </target>
 

@@ -9,6 +9,7 @@ import data.ServerInfo;
 import utils.Config;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.TException;
 import pa3.Server;
@@ -31,7 +32,8 @@ public class ClientManager {
             ServerConn serverConn = ServerConnFactory.makeConn(config.getRandomServer());
 
             ArrayList<Command> commands = config.getCommands(commandFilePath);
-            Log.info(FID, "Running " + commands.size() + " commands");
+            Collections.shuffle(commands);
+            Log.info("Running " + commands.size() + " command(s)\n");
 
             while (!commands.isEmpty()) { 
                 Command command = commands.remove(0);
@@ -165,41 +167,14 @@ public class ClientManager {
                         counter += 1;
                     }
                 }
-                Log.info(FID, "File " + i + ": Version " + highest + "\n\t" + counter + "/" + nW + " servers had this version number.");
+                Log.info("File [" + i + "]: " + 
+                    "\n\t-      Version: " + highest + 
+                    "\n\t- confirmed by: " + counter + "/" + nW + " servers"
+                );
             }
-            
 
         } catch (TException x) {
             Log.error(FID, "Error writing to server", x);
         }
-    }
-
-    
-    public void testCommands(String commandFilePath) {
-        ArrayList<Command> commands = config.getCommands(commandFilePath);
-
-        System.out.println("Printing Commands: ");
-        for (Command command : commands) {
-            Print.command(command);
-        }
-    }
-
-
-    public void testConfig() {
-        System.out.println("numFiles: " + config.getNumFiles());
-        System.out.println("readQuorum: " + config.getReadQuorum());
-        System.out.println("writeQuorum: " + config.getWriteQuorum());
-        System.out.print("Coordinator: ");
-        Print.serverInfo(config.getCoordinator());
-        
-        ServerInfo[] servers = config.getServers();
-
-        System.out.println("Servers:");
-        for (ServerInfo serverInfo : servers) {
-            Print.serverInfo(serverInfo);
-        }
-
-        System.out.print("My ServerInfo: ");
-        Print.serverInfo(config.getMyServerInfo());
     }
 }
