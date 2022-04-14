@@ -48,8 +48,3 @@ read 9
 read 9
 read 9
 read 9
-read 10
-read 10
-read 10
-read 10
-read 10
