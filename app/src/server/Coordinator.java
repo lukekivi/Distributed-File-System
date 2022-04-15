@@ -73,10 +73,12 @@ public class Coordinator {
         File newFile = new File(); // New file to overwrite the others with, version incremented
         newFile.version = highest.version + 1;
         newFile.id = highest.id;
+        String operationInfo = "Servers ";
 
 
         for (int i = 0; i < quorum.size(); i++) { // Iterate through the quorum and write
             ServerInfo server = quorum.get(i);
+            operationInfo = operationInfo + server.getId() + ", ";
 
             WriteResponse writeInfo = quorumWrite(newFile, server); // Write helper for the quorum
             if (writeInfo.status != Status.SUCCESS) { // Something went wrong with the write
@@ -87,8 +89,9 @@ public class Coordinator {
         sem.signal(newFile.id); // Give control back to next waiting process for the specific file
 
         ans.status = Status.SUCCESS;
-        ans.msg = "Successfully updated file " + newFile.id + " in the write quorum";
+        ans.msg = operationInfo;
 
+        Log.info("COORDINATOR: Successful Write() of file " + fileId + " on " + operationInfo + " returned SUCCESSFULLY.");
         return ans;
     }
 
@@ -111,6 +114,7 @@ public class Coordinator {
 
         ArrayList<ServerInfo> quorum = buildReadQuorum(); // Build the quorum
         File highest = null;
+        String operationInfo = "";
 
         for (int i = 0; i < quorum.size(); i++) { // Iterate throug the quorum and read
             ServerInfo server = quorum.get(i);
@@ -124,16 +128,20 @@ public class Coordinator {
 
             if (highest == null) { // Can't compare nulls
                 highest = readInfo.file;
+                operationInfo = readInfo.msg;
             } else {
                 if (readInfo.file.version > highest.version) {
                     highest = readInfo.file; // Found a higher version of the file
+                    operationInfo = readInfo.msg;
                 }
             }
         }
 
         ans.file = highest;
         ans.status = Status.SUCCESS;
-        ans.msg = "Successfully read file " + fileId + " from the read quorum";
+        ans.msg = operationInfo;
+
+        Log.info("COORDINATOR: " + operationInfo);
         return ans;
     }
 
@@ -185,13 +193,16 @@ public class Coordinator {
 
         WriteResponse response;
         if (server.getId() != manager.info.getId()) { // RPC call on server passed in
+            //Log.info("Sending Write() of file " + file.id + " to Server " + server.getId() + ".");
             response = ServerComm.coordWrite(FID, server, file);
 
-        } else { // Local
+        } else { // Local call
+            //Log.info("Not sending Write() of file " + file.id + " anywhere, this is the proper server.");
             response = new WriteResponse();
             response.status = manager.writeFile(file); // Write the file
             response.msg = "Successfully updated file " + file.id + " for server " + manager.info.getId();
         }
+        //Log.info("Write() of file " + file.id + " on Server " + server.getId() + " returned " + response.status + ".");
         return response;
     }
 
@@ -208,19 +219,22 @@ public class Coordinator {
         ReadResponse response;
 
         if (server.getId() != manager.info.getId()) { // RPC call
+            //Log.info("Sending Read() of file " + fileId + " to Server " + server.getId() + ".");
             response = ServerComm.coordRead(FID, server, fileId); // Call coordRead on the server passed in
 
         } else { // Local call
+            //Log.info("Not sending Read() of file " + fileId + " anywhere, this is the proper server.");
             response = new ReadResponse();
             response.file = manager.readFile(fileId);
             if (response.file != null) { // File was found
                 response.status = Status.SUCCESS;
-                response.msg = "Successfully read file " + fileId + " from server " + manager.info.getId();
+                response.msg = "Successful Read() of file " + fileId + " on server " + manager.info.getId() + " returned version " + response.file.version + ".";
             } else { // File wasn't found
                 response.status = Status.ERROR;
-                response.msg = "Failed to read file " + fileId + " from server " + manager.info.getId();
+                response.msg = "Failed to read file " + fileId + " on server " + manager.info.getId();
             }
         }
+        //Log.info("Read() of file " + fileId + " on Server " + server.getId() + " returned " + response.file.version + ".");
         return response;
     }
 

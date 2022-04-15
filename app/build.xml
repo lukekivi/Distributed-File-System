@@ -63,7 +63,7 @@
         </java>
      </target>
 
-    <!-- Run ready heavy client -->
+    <!-- Run read heavy client -->
     <target name="clientReadHeavy" depends="compile">
         <echo>read heavy client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">

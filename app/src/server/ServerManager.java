@@ -62,9 +62,11 @@ public class ServerManager {
         for (int i = 0; i < files.size(); i++) { // Loop through files to find the one requested
             File file = files.get(i);
             if (file.id == fileId) { // Found the file
+                Log.info("SERVER: Read() of file " + fileId + " returned version " + file.version + ".");
                 return file;
             }
         }
+        Log.info("SERVER: Read() of file " + fileId + " FAILED.");
         return null;
     }
 
@@ -79,9 +81,11 @@ public class ServerManager {
             File tempFile = files.get(i);
             if (tempFile.id == file.id) { // Found the file
                 tempFile.version = file.version; // Increment version
+                Log.info("SERVER: Write() of file " + file.id + " returned SUCCESSFULLY.");
                 return Status.SUCCESS;
             }
         }
+        Log.info("SERVER: Write() of file " + file.id + " FAILED.");
         return Status.NOT_FOUND;
     }
 

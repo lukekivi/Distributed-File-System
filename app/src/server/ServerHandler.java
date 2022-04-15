@@ -79,9 +79,9 @@ public class ServerHandler implements Server.Iface {
         }
         ans.status = manager.writeFile(file); // Conduct write request on the file on this server
         if (ans.status == Status.SUCCESS) {
-            ans.msg = "Successfully read file " + file.id;
+            ans.msg = "Successful Write() of file " + file.id + " on Server " + manager.info.getId() + " returned SUCCESSFULLY.";
         } else {
-            ans.msg = "FAIL: Something went wrong, check log files";
+            ans.msg = "FAILED Write() of file " + file.id + " on Server " + manager.info.getId() + ".";
         }
         return ans;
     }
@@ -134,10 +134,10 @@ public class ServerHandler implements Server.Iface {
         ans.file = manager.readFile(fileId); // Conduct read request on the file on this server
         if (ans.file != null) {
             ans.status = Status.SUCCESS;
-            ans.msg = "Successfully read file " + fileId;
+            ans.msg = "Successful Read() of file " + fileId + " on Server " + manager.info.getId() + " returned version " + ans.file.version + ".";
         } else {
             ans.status = Status.NOT_FOUND;
-            ans.msg = "FAIL: File not found";
+            ans.msg = "FAILED Read() of file " + fileId + " on Server " + manager.info.getId() + ".";
         }
         return ans;
     }
