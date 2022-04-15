@@ -111,39 +111,31 @@ The format is like this:
 ## Commands
 There are four commands a client may issue to the file system. All output is directed to the given client's log. Read more about logging in the **Output** section above.
 
-### Read
----
-Read the version number of a file with **integer** id `n`.
-```
-read n
-```
+* **READ**  the version number of a file with **integer** id `n`.
+	```
+	read n
+	```
 
-### Write
----
-Increment the version of the file with **integet** id `n`.
-``` 
-write n
-```
+* **Write** or essentially increment the version of the file with **integer** id `n`.
+	``` 
+	write n
+	```
 
-### Print
----
-Prints the structure of the entire distributed file system. This includes each server and their files.
-```
-print
-```
+* **Print** the structure of the entire distributed file system. This includes each server and their files.
+	```
+	print
+	```
 
-### Check
----
-Prints the consensus version of each file. It also prints the number of servers that agreed with that value along side the current write quorum size.
-```
-check
-```
+* **Check** the consensus version of each file. It also prints the number of servers that agreed with that value along side the current write quorum size.
+	```
+	check
+	```
 
-**Example Output**
-```
-File [3]: 
-	-      Version: 90
-	- confirmed by: 4/4 servers
-```
+	**Example Output**
+	```
+	File [3]: 
+		-      Version: 90
+		- confirmed by: 4/4 servers
+	```
 
 ### `commands.txt`
