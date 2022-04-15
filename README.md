@@ -80,7 +80,7 @@ files 10
 4. `files 10` - ten files should exist in each server. IDs will be 0-9.
 
 You may modify these entries to your liking but just be sure you do a few things:
-* Follow the quorum constraints in the **Quorums* section above. 
+* Follow the quorum constraints in the **Quorums** section above. 
 * Make sure the number of servers you choose matches the number of servers you provide in the `machines.txt` file (details below) and the number of servers you ultimately start.
 
 ### `app/config/machines.txt`
