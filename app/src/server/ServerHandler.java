@@ -20,11 +20,13 @@ public class ServerHandler implements Server.Iface {
     private Coordinator coordinator;
     private boolean isCoord; // True if coordinator, false if ordinary server
 
+
     public ServerHandler(ServerManager manager) { // Called if ordinary server
         this.manager = manager;
         this.coordinator = null;
         isCoord = false;
     }
+
 
     public ServerHandler(Coordinator coordinator) { // Called if a coordinator
         this.manager = null;
@@ -41,6 +43,7 @@ public class ServerHandler implements Server.Iface {
     @Override
     public WriteResponse ClientWrite(int fileId) { // Always called by a Client onto a Server/Coordinator
         final String FID = "ServerHandler.ClientWrite()";
+
         if (isCoord) { // Is the coordinator
             return coordinator.handleWrite(fileId); // Start write call, this is coordinator
         } else {
@@ -58,9 +61,11 @@ public class ServerHandler implements Server.Iface {
     @Override
     public WriteResponse ServerWrite(int fileId) { // Always called by a Server onto a Coordinator
         final String FID = "ServerHandler.ServerWrite()";
+
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
+
         return coordinator.handleWrite(fileId); // Handle the write call
     }
 
@@ -74,15 +79,18 @@ public class ServerHandler implements Server.Iface {
     public WriteResponse CoordWrite(File file) { // Always called by a Coordinator onto a Server
         final String FID = "ServerHandler.CoordWrite()";
         WriteResponse ans = new WriteResponse();
+
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
+
         ans.status = manager.writeFile(file); // Conduct write request on the file on this server
         if (ans.status == Status.SUCCESS) {
             ans.msg = "Successful Write() of file " + file.id + " on Server " + manager.info.getId() + " returned SUCCESSFULLY.";
         } else {
             ans.msg = "FAILED Write() of file " + file.id + " on Server " + manager.info.getId() + ".";
         }
+
         return ans;
     }
 
@@ -95,6 +103,7 @@ public class ServerHandler implements Server.Iface {
     @Override
     public ReadResponse ClientRead(int fileId) { // Always called by a Client onto a Server/Coordinator
         final String FID = "ServerHandler.ClientRead()";
+
         if (isCoord) {
             return coordinator.handleRead(fileId); // Start write call, this is coordinator
         } else {
@@ -112,9 +121,11 @@ public class ServerHandler implements Server.Iface {
     @Override
     public ReadResponse ServerRead(int fileId) { // Always called by a Server onto a Coordinator
         final String FID = "ServerHandler.ServerRead()";
+
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
+
         return coordinator.handleRead(fileId); // Handle the read call
     }
 
@@ -128,10 +139,13 @@ public class ServerHandler implements Server.Iface {
     public ReadResponse CoordRead(int fileId) { // Always called by a Coordinator onto a Server
         final String FID = "ServerHandler.CoordRead()";
         ReadResponse ans = new ReadResponse();
+
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
+
         ans.file = manager.readFile(fileId); // Conduct read request on the file on this server
+
         if (ans.file != null) {
             ans.status = Status.SUCCESS;
             ans.msg = "Successful Read() of file " + fileId + " on Server " + manager.info.getId() + " returned version " + ans.file.version + ".";
@@ -139,6 +153,7 @@ public class ServerHandler implements Server.Iface {
             ans.status = Status.NOT_FOUND;
             ans.msg = "FAILED Read() of file " + fileId + " on Server " + manager.info.getId() + ".";
         }
+
         return ans;
     }
 
@@ -150,6 +165,7 @@ public class ServerHandler implements Server.Iface {
     @Override
     public StructResponse ClientGetStruct() { // Always called by a Client onto a Server/Coordinator
         final String FID = "ServerHandler.ClientGetStruct()";
+
         if (isCoord) {
             return coordinator.handleGetStruct(); // Start structure request, this is coordinator
         } else {
@@ -168,9 +184,11 @@ public class ServerHandler implements Server.Iface {
     @Override
     public StructResponse ServerGetStruct() { // Always called by a Server onto a Coordinator
         final String FID = "ServerHandler.ServerGetStruct()";
+
         if (!(isCoord)) {
             Log.error(FID, "This is not a coordinator");
         }
+
         StructResponse response = coordinator.handleGetStruct(); // Handle the structure request
         return response;
     }
@@ -183,11 +201,12 @@ public class ServerHandler implements Server.Iface {
     @Override
     public FolderResponse CoordGetFolder() { // Always called by a Coordinator onto a Server
         final String FID = "ServerHandler.CoordGetFolder()";
+
         if (isCoord) {
             Log.error(FID, "This is a coordinator");
         }
-        FolderResponse response = new FolderResponse();
 
+        FolderResponse response = new FolderResponse();
         Folder folder = new Folder(); // Create a folder
         folder.files = manager.files; // Add the files
         folder.serverId = manager.info.getId(); // Mark it with the server id

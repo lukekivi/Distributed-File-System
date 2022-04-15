@@ -75,7 +75,6 @@ public class Coordinator {
         newFile.id = highest.id;
         String operationInfo = "Servers ";
 
-
         for (int i = 0; i < quorum.size(); i++) { // Iterate through the quorum and write
             ServerInfo server = quorum.get(i);
             operationInfo = operationInfo + server.getId() + ", ";
@@ -193,16 +192,14 @@ public class Coordinator {
 
         WriteResponse response;
         if (server.getId() != manager.info.getId()) { // RPC call on server passed in
-            //Log.info("Sending Write() of file " + file.id + " to Server " + server.getId() + ".");
             response = ServerComm.coordWrite(FID, server, file);
 
         } else { // Local call
-            //Log.info("Not sending Write() of file " + file.id + " anywhere, this is the proper server.");
             response = new WriteResponse();
             response.status = manager.writeFile(file); // Write the file
             response.msg = "Successfully updated file " + file.id + " for server " + manager.info.getId();
         }
-        //Log.info("Write() of file " + file.id + " on Server " + server.getId() + " returned " + response.status + ".");
+
         return response;
     }
 
@@ -219,11 +216,9 @@ public class Coordinator {
         ReadResponse response;
 
         if (server.getId() != manager.info.getId()) { // RPC call
-            //Log.info("Sending Read() of file " + fileId + " to Server " + server.getId() + ".");
             response = ServerComm.coordRead(FID, server, fileId); // Call coordRead on the server passed in
 
         } else { // Local call
-            //Log.info("Not sending Read() of file " + fileId + " anywhere, this is the proper server.");
             response = new ReadResponse();
             response.file = manager.readFile(fileId);
             if (response.file != null) { // File was found
@@ -234,7 +229,7 @@ public class Coordinator {
                 response.msg = "Failed to read file " + fileId + " on server " + manager.info.getId();
             }
         }
-        //Log.info("Read() of file " + fileId + " on Server " + server.getId() + " returned " + response.file.version + ".");
+
         return response;
     }
 
@@ -275,6 +270,7 @@ public class Coordinator {
             quorum.add(tempServers.get(index)); // Add it to the quorum
             tempServers.remove(index); // Remove the chosen server from the pool of available ones
         }
+        
         return quorum;
     }
 }

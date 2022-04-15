@@ -17,12 +17,14 @@ public class ServerManager {
     private PrintStream fileOut = null;
     private final String LOG_FILE = "log/server";
 
+
     public ServerManager(ServerInfo info, Config c) {
         final String FID = "ServerManager.ServerManager()";
         this.info = info;
         config = c;
         files = new ArrayList<File>();
         Status initStatus = initFiles(c.getNumFiles()); // Initialize all the files
+
         if (initStatus != Status.SUCCESS) {
             Log.error(FID, "File initialization went wrong.");
         }
@@ -41,6 +43,7 @@ public class ServerManager {
             newFile.version = 0; // All start at version 0, increment with each write call
             files.add(newFile); // Add to the list
         }
+
         return Status.SUCCESS;
     }
 
@@ -52,6 +55,7 @@ public class ServerManager {
     public ArrayList<File> getStructure() {
         return files;
     }
+
 
     /**
      * Takes fileId and returns the file that has fileId
@@ -66,6 +70,7 @@ public class ServerManager {
                 return file;
             }
         }
+
         Log.info("SERVER: Read() of file " + fileId + " FAILED.");
         return null;
     }
@@ -85,6 +90,7 @@ public class ServerManager {
                 return Status.SUCCESS;
             }
         }
+
         Log.info("SERVER: Write() of file " + file.id + " FAILED.");
         return Status.NOT_FOUND;
     }
@@ -103,6 +109,7 @@ public class ServerManager {
     */
     public void setLog(int id)  {
         final String FID = "ServerManager.setLog()";
+        
         try {
             if (id == -1) {
                 fileOut = new PrintStream("log/coordLog.txt"); // Setting the log file name for coordinator
@@ -114,6 +121,7 @@ public class ServerManager {
             Log.error(FID, "Error: Server " + info.getId() + " not able to establish a server file.", x);
         }
     }
+
 
     /** 
     * Close's the servers log

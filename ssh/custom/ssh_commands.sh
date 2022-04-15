@@ -18,10 +18,10 @@ echo "sleep 2 seconds"
 sleep 2
 ssh -f $DFS_USERNAME@csel-kh1250-17.cselabs.umn.edu "cd $PROJ_PATH; ant server"
 echo "sleep 2 seconds and then start clients"
-sleep 2
-ssh -f $DFS_USERNAME@csel-kh1250-18.cselabs.umn.edu "cd $PROJ_PATH; ant client"
-ssh -f $DFS_USERNAME@csel-kh1250-19.cselabs.umn.edu "cd $PROJ_PATH; ant client"
-ssh -f $DFS_USERNAME@csel-kh1250-20.cselabs.umn.edu "cd $PROJ_PATH; ant client"
-echo "sleep 5 seconds and then performing check"
-sleep 5
-ssh -f $DFS_USERNAME@csel-kh1250-21.cselabs.umn.edu "cd $PROJ_PATH; ant clientCheck" 
+# sleep 2
+# ssh -f $DFS_USERNAME@csel-kh1250-18.cselabs.umn.edu "cd $PROJ_PATH; ant client"
+# ssh -f $DFS_USERNAME@csel-kh1250-19.cselabs.umn.edu "cd $PROJ_PATH; ant client"
+# ssh -f $DFS_USERNAME@csel-kh1250-20.cselabs.umn.edu "cd $PROJ_PATH; ant client"
+# echo "sleep 5 seconds and then performing check"
+# sleep 5
+# ssh -f $DFS_USERNAME@csel-kh1250-21.cselabs.umn.edu "cd $PROJ_PATH; ant clientCheck" 
