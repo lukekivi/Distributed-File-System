@@ -1,5 +1,9 @@
 package data;
 
+/**
+ * Data class to encapsulate required information about a server in
+ * the distributed file system.
+ */
 public class ServerInfo {
     public ServerInfo(int id, String ip, int port, boolean isCoord) {
         this.id = id;

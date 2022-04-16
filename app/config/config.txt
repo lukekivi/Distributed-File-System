@@ -1,4 +1,4 @@
-servers 7
-read 6
-write 4
+servers 10
+read 5
+write 6
 files 10

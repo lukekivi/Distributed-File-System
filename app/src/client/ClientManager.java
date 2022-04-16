@@ -21,18 +21,26 @@ import pa3.ReadResponse;
 import pa3.StructResponse;
 import pa3.WriteResponse;
 
-
+/**
+ * Handle the business logic of running commands and communicating with the system
+ */
 public class ClientManager {
     private final Config config = new Config();
 
+
+    /**
+     * Runs all commands from the provided text file. Randomizes the commands if
+     * it is desired.
+     */
     public void runCommands(String commandFilePath, boolean isRandom) {
         final String FID = "ClientManager.runCommands()";
 
         try {
+            // make a connection to the server
             ServerConn serverConn = ServerConnFactory.makeConn(config.getRandomServer());
 
+            // get and possibly randomize comands
             ArrayList<Command> commands = config.getCommands(commandFilePath);
-
             if (isRandom) {
                 Log.info("Running " + commands.size() + " command(s) in a random order.\n");
                 Collections.shuffle(commands);
@@ -43,6 +51,7 @@ public class ClientManager {
             while (!commands.isEmpty()) { 
                 Command command = commands.remove(0);
 
+                // give the specific command to its respective handler
                 switch (command.getCommandType()) {
                     case READ:
                         handleRead(serverConn.getClient(), command.getFileId());
@@ -66,6 +75,9 @@ public class ClientManager {
     }
 
 
+    /**
+     * Handle the reads and associated output
+     */
     private void handleRead(Server.Client client, int fileId) {
         final String FID = "ClientManager.handleRead()";
         try {
@@ -88,6 +100,9 @@ public class ClientManager {
     }
 
 
+    /**
+     * Handle the writes and associated output
+     */
     private void handleWrite(Server.Client client, int fileId) {
         final String FID = "ClientManager.handleWrite()";
         try {
@@ -109,6 +124,10 @@ public class ClientManager {
     }
 
 
+    /**
+     * Get structure of distributed file system and print all data
+     * including server ids, file ids, and file versions.
+     */
     private void handlePrint(Server.Client client) {
         final String FID = "ClientManager.handlePrint()";
         try {
@@ -134,6 +153,10 @@ public class ClientManager {
     }
 
 
+    /**
+     * Get system structure and check how many servers can verify the consensus
+     * version for each file.
+     */
     private void handleCheck(Server.Client client) {
         final String FID = "ClientManager.handleCheck()";
         try {

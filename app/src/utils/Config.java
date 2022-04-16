@@ -31,6 +31,7 @@ public class Config {
 
     public Config() {
         readConfig();
+        checkConfig();
         readMachines();
     }  
 
@@ -70,6 +71,11 @@ public class Config {
     }
 
 
+    /**
+     * A server must configure itself and it needs its details
+     * to do that. Compare the system's hostname with the ones
+     * listed in machines.txt. 
+     */
     public ServerInfo getMyServerInfo() {
         final String FID = "Config.getServerInfo()";
 
@@ -90,6 +96,10 @@ public class Config {
     }
 
 
+    /**
+     * Read all commands from the commandFilePath and return them in the 
+     * form of an ArrayList
+     */
     public ArrayList<Command> getCommands(String commandFilePath) {
         final String FID = "Config.getCommands()";
         try {
@@ -136,6 +146,13 @@ public class Config {
     }
 
 
+    /**
+     * Read the configuration values from the config file
+     * - num servers
+     * - read quorum size
+     * - write quorum size
+     * - num files
+     */
     private void readConfig() {
         final String FID = "Config.readConfig()";
 
@@ -179,6 +196,25 @@ public class Config {
         }
     }
 
+
+    /**
+     * Check that config file was sane.
+     */
+    void checkConfig() {
+        final String FID = "Config.checkConfig()";
+        if ((float) writeQuorum <= ((float) numServers / 2.0)) {
+            Log.error(FID, "Write quourum size must be greater than half of the number of servers.");
+        } else if (writeQuorum + readQuorum <= numServers) {
+            Log.error(FID, "Sum of write quourum size and read quorum size must be greater than the number of servers.");
+        } else if (numFiles < 1) {
+            Log.error(FID, "There must be at least one file in the system.");
+        }
+    }
+
+
+    /**
+     * Read in machine.txt file.
+     */
     void readMachines() {
         final String FID = "Config.readMachines()";
         int index = 0;

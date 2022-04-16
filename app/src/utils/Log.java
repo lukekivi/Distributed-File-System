@@ -1,5 +1,8 @@
 package utils;
 
+/**
+ * Logs for convenience.
+ */
 public class Log {
     public static void error(String id, String msg) {
         System.out.println("ERROR:" + id + " - " + msg);

@@ -1,5 +1,8 @@
 package data;
 
+/**
+ * Command data class for user issued commands to the distributed file system.
+ */
 public class Command {
     private CommandType commandType;
     private int fileId;

@@ -6,6 +6,9 @@ import data.CommandType;
 import pa3.ReadResponse;
 import pa3.WriteResponse;
 
+/**
+ * Print class used mostly for convenience during testing.
+ */
 public class Print {
     public static void serverInfo(ServerInfo serverInfo) {
         System.out.println(
