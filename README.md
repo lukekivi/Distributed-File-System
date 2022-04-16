@@ -64,9 +64,6 @@ In order to run our distributed file distributed you must do a few things:
 * Understand how to issue commands to a client
 
 * Start the system
-
-* Run clients
-
   
   
 
