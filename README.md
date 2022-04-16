@@ -91,7 +91,7 @@ export PROJ_PATH=/<absolute path to>/Distributed-File-System/app
 export DFS_USERNAME=<username>
 ```
 
-5. Here is an example script for setting up the environment variables.
+Here is an example script for setting up the environment variables.
 
 ```
 export THRIFT_COMPILER_PATH=/project/kivix019/thrift-0.15.0/compiler/cpp/thrift
