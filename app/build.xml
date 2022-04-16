@@ -60,6 +60,7 @@
         <echo>write heavy client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
             <arg line="commands/commandsWriteHeavy.txt"/>
+            <arg line="random"/>
         </java>
      </target>
 
@@ -68,6 +69,7 @@
         <echo>read heavy client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
             <arg line="commands/commandsReadHeavy.txt"/>
+            <arg line="random"/>
         </java>
      </target>
 
@@ -76,6 +78,7 @@
         <echo>mixed client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
             <arg line="commands/commandsMixed.txt"/>
+            <arg line="random"/>
         </java>
      </target>
 
@@ -84,6 +87,7 @@
         <echo>client:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
             <arg line="commands/commands.txt"/>
+            <arg line="non-random"/>
         </java>
      </target>
 
@@ -92,6 +96,7 @@
         <echo>client check:</echo>
         <java classpathref="pa3.classpath" failonerror="false" fork="true" classname="client/Client">
             <arg line="commands/commandsCheck.txt"/>
+            <arg line="non-random"/>
         </java>
      </target>
 

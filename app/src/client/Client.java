@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import utils.Log;
 
 public class Client {
+    private static final String RANDOM = "random";
     private static final String LOG_FILE_PREFIX = "log/clientLog_";
     private static final String LOG_FILE_SUFFIX = ".txt";
 
@@ -24,14 +25,16 @@ public class Client {
          * Users can provide a file with commands for the
          * client to complete.
          */
-        if (args.length != 1) {
-            Log.error(FID, "A command file path is required as an argument. You provided " + args.length + " arguments.");
+        if (args.length != 2) {
+            Log.error(FID, "A command file path and random status are required as arguments. You provided " + args.length + " arguments. Random status can be either \"random\" or \"non-random\"");
         }
+
+        boolean isRandom = RANDOM.equals(args[1]);
 
         String commandFilePath = args[0];
 
         long startTime = System.nanoTime();
-        manager.runCommands(commandFilePath);
+        manager.runCommands(commandFilePath, isRandom);
         long endTime   = System.nanoTime();
         long totalTime = endTime - startTime;
         Log.info("Commands completed in " + totalTime + " nano seconds.");

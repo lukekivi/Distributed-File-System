@@ -25,15 +25,20 @@ import pa3.WriteResponse;
 public class ClientManager {
     private final Config config = new Config();
 
-    public void runCommands(String commandFilePath) {
+    public void runCommands(String commandFilePath, boolean isRandom) {
         final String FID = "ClientManager.runCommands()";
 
         try {
             ServerConn serverConn = ServerConnFactory.makeConn(config.getRandomServer());
 
             ArrayList<Command> commands = config.getCommands(commandFilePath);
-            Collections.shuffle(commands);
-            Log.info("Running " + commands.size() + " command(s)\n");
+
+            if (isRandom) {
+                Log.info("Running " + commands.size() + " command(s) in a random order.\n");
+                Collections.shuffle(commands);
+            } else {
+                Log.info("Running " + commands.size() + " command(s)\n");
+            }
 
             while (!commands.isEmpty()) { 
                 Command command = commands.remove(0);
