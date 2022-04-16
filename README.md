@@ -1,9 +1,7 @@
 # Distributed File System
 
 **Created by:** \
-
 Lucas Kivi - kivix019 \
-
 Charles Droege - droeg022
 
   
@@ -48,10 +46,6 @@ Client logs are of the form `clientLog_<N>.txt`. `<N>` is the next available log
 ```
 All output directed to: log/clientLog_0.txt
 ```
-The servers log each read() and write() call that it receives. The coordinator makes read calls to the servers in order to build a quorum as well as find the most updated version of a file in order to execute a write request. Each write call is done to update a file for that server. Therefore there are more read log messages than write ones. This way, the user can look at the reads and writes and see that they are properly giving the most updated values.
-
-The coordinator logs each read() and write() call that comes in from a client. It logs the file of the request, the server that the value was found or the servers that the value was updated on, and the answer (version number for read and status for write). These are all designated with a 'COORDINATOR:' at the beginning of the line. The server that acts as the coordinator has both these coordinator and server log statements.
-  
 
 # Running
 
@@ -59,7 +53,7 @@ In order to run our distributed file distributed you must do a few things:
 
 * Setup your environment
 
-* Familiarize yourself with and setup the configuration documents `machines.txt` and `config.txt`.
+* Familiarize yourself with and setup the configuration documents `machines.txt` and `config.txt`
 
 * Understand how to issue commands to a client
 
@@ -69,22 +63,24 @@ In order to run our distributed file distributed you must do a few things:
 
 ## Setup
 
-1. Make sure you have a current JDK, JRE, and `Thrift` installed.
+1. Make sure you have access to UMN lab machines.
+2. Make sure you have [key-based-authentication](https://cse.umn.edu/cseit/self-help-guides/secure-shell-ssh) setup on lab machines. You should set it up so there is no password entry required.  
+3. Make sure you have a current JDK, JRE, and `Thrift` installed.
 
-2. Download the application. If you need a fresh version you can find it here:
+4. Download the application. If you need a fresh version you can find it here:
 
 ```
 git clone https://github.com/lukekivi/Distributed-File-System.git
 ```
 
-3. Set the required environment variables:
+5. Set the required environment variables:
 
 ```
 export THRIFT_COMPILER_PATH=/<absolute path to thrift compiler>
 export THRIFT_LIB_PATH=/<absolute path to thrift java libs>
 ```
 
-4. If you want to run tests using our ssh scripts you will want to set these environment variables as well. The `DFS_USERNAME` should be the username you use to ssh into the machines you will be using.
+6. If you want to run tests using our ssh scripts you will want to set these environment variables as well. The `DFS_USERNAME` should be the username you use to ssh into the machines you will be using.
 
 ```
 export PROJ_PATH=/<absolute path to>/Distributed-File-System/app
@@ -104,6 +100,7 @@ export DFS_USERNAME=kivix019
   
 
 ## Configuration
+These files relieve users of most startup logic. You build the requirements of the system in these two files and you are responsible for starting the machines to fulfill those requirements. Since configuration is automated, you can simply navigate to the machines you have declared and run `ant server`. The build targets will be detailed in the next section.
 
 ### `app/config/config.txt`
 ---
@@ -136,7 +133,7 @@ You may modify these entries to your liking but just be sure you do a few things
 ### `app/config/machines.txt`
 ---
 
-Here is where you declare the hostnames or ip addresses, port numbers, and IDs of each server and the coordinator. This is the source of truth for which machines must be acting as servers, and which server is the coordinator.
+Here is where you declare the hostnames or ip addresses, port numbers, and IDs of each server and the coordinator. This is the source of truth for which machines must be acting as servers, and which server is the coordinator. The server setup on the machine with the `coordinator` label will set itself up as a coordinator.
 
   
 
@@ -168,7 +165,46 @@ The format is like this:
 
 **Remember: the number of servers declared in this file must match the number of servers declared in the `config.txt` file**
 
-  
+
+## Build Targets
+We automated entity start-ups for ease-of-use. You can simply follow the **Configuration** guidelines and run these build commands. However, the one trade off is that you cannot run servers on the same machine with different port numbers. There must be one machine per server. Clients can all be run on the same machine.
+
+Navigate to the `app` directory to run these commands:
+
+* `ant server` - starts a server (servers self-setup as coordinators based on the `machine.txt` file)
+
+* `ant client` - run a client with the `commands.txt` command set.
+
+* `ant clientReadHeavy` - run client who performs 500 random reads
+
+* `ant clientWriteHeavy` - run client who performs 500 random writes
+
+* `ant clientMixed` - run client who performs 250 random reads and 250 random writes
+
+* `ant checkClient` - run client that performs `check` command
+
+
+*Note: there are automated tests and system startup scripts we provide. They are detailed at the end of this document.*
+
+### Server Steps
+1. Declare the total number of servers you will start in `config.txt`
+2. Declare quorum sizes and number of files in `config.txt`
+3. Declare server-type, the machine you will use, an available port number, and the unique server ID in `machines.txt`
+4. ssh to or otherwise access the machine you just declared
+5. Be sure this machine has the up-to-date config files.
+6. Navigate to `Distributed-File-System/app`
+7. Run `ant server` 
+8. Check terminal for any initial errors
+9. Check logs for runtime output
+
+### Client Steps
+1. Modify `commands.txt` to contain the commands you want to run or just use the default command sets we provide. (read **Commands** section below)
+2. Be sure all servers are running
+3. Be sure the machine you are working on contains the up-to-date `config.txt` and `machines.txt`
+4. Navigate to `Distributed-File-System/app`
+5. Run `ant client` (or another client target if you are using the provided command sets)
+6. Note the log file name printed to terminal
+7. View the log file for runtime output
 
 ## Commands
 
@@ -202,7 +238,7 @@ There are four commands a client may issue to the file system. All output is dir
   
 ### `app/commands/commands.txt`
 ---
-Within the `commands.txt` file you may list the commands you want to give to the system via a client. This file is located within the `commands` directory which contains a few other command files. These other command files are used in some of the tests we have provided. Please only edit `commands.txt`. It will be used by the `ant client` command. The `ant` targets and other tests will be detailed shortly.
+Within the `commands.txt` file you may list the commands you want to give to the system via `ant client`. This file is located within the `commands` directory which contains a few other command files. These other command files are used in the tests we have provided. Please only edit `commands.txt`.
 ```
 app
  |-- commands
@@ -214,11 +250,10 @@ app
 ```
 
 
-## Start the System
-There are three ways to do this:
-1. Automated Tests
+## Automated System Startup
+There are two options:
+1. Automated tests
 2. Automated system start up with custom clients
-3. Customized
 
 ### Automated Tests
 Check out the `ssh` directory. 
@@ -232,21 +267,28 @@ Distributed-File-Server
 |   |-- writeHeavy   <-- test
 ```
 Within you will find four directories, each containing a `ssh_commands.sh` and a `ssh_cleanup.sh` script. The automated tests are the last 3 directories. They will each start 7 servers, 3 transaction performing clients, and then a 4th client that checks the final versions of files.
+
+**Tests**
 * `mixed` - transacting clients run 250 reads and 250 writes each
 * `readHeavy` - transacting clients perform 500 reads each
 * `writeHeavy` - transacting clients perform 500 writes each
 
-These scripts are setup for UMN machines but you could replace the machine names with any machine you desire to use. Be sure to follow these steps.
+**Example line from `ssh_commands.sh`**
+```
+ssh -f $DFS_USERNAME@csel-kh1250-11.cselabs.umn.edu "cd $PROJ_PATH; ant server"
+```
+It uses the environment variables you setup in the **Setup** section and the machines must be matched by the ones you declare in `machines.txt`. `-f` allows the ssh call to be run in the background which means destroying processes might be difficult. This is why we provide `ssh_cleanup.sh`.
 
 **Steps**
-1. Follow the **Setup** section near the top of this document. Complete all steps.
-2. Setup your test ssh scripts with the machines you will use. If you have access to UMN machines do not change anything.
+1. Follow the **Setup** section near the top of this document. Complete all steps. The UMN machines have shared memory so all machines will be able to see the same config docs.
+2. Setup your test ssh scripts with the machines you will use. You can likely leave the script as is.
 3. Make sure `machines.txt` uses the same machines you will start in the `ssh_commands.sh`
-4. Make sure `config.txt` is setup correctly. (see **Configuration** section for help with these two documents) You may want to alter quorum sizes but make sure they follow the **Quorum** guidelines as well.
-5. Run command `source ssh_commands.sh` on the test directory entry of you choosing.
-6. Wait for the final check client to complete. View the logs in `app/log`. For details about output see the **Output** section.
-7. Run `source ssh_cleanup.sh` to cleanup processes on all machines you used.
-8. In between you may want to clean up the client logs. Server logs will be replaced with new ones but client logs will build up as they are named sequentially.
+4. Make sure `config.txt` is setup correctly. You may want to alter quorum sizes.
+5. Optionally delete logs from `app/log` to reduce clutter
+6. Run command `source ssh_commands.sh` on the test directory entry of you choosing.
+7. Wait for the final check client to complete. View the logs in `app/log`. For details about output see the **Output** section.
+8. Run `source ssh_cleanup.sh` to cleanup processes on all machines you used.
+9. In between you may want to clean up the client logs. Server logs will be replaced with new ones but client logs will build up as they are named sequentially.
 
 ### Automated System Startup & Custom Clients
 Within `ssh/custom` there are two more ssh scripts. These scripts startup and cleanup a set of 7 servers. They do not run any clients. From here you can follow the `ant` commands detailed in **Customized** below. This will allow you to run as many clients as you want with any custom command sets.
@@ -255,77 +297,14 @@ Within `ssh/custom` there are two more ssh scripts. These scripts startup and cl
 1. Follow the **Setup** section near the top of this document. Complete all steps.
 2. Setup your test ssh scripts with the machines you will use. If you have access to UMN machines do not change anything.
 3. Make sure `machines.txt` uses the same machines you will start in the `ssh_commands.sh`
-4. Make sure `config.txt` is setup correctly. (see **Configuration** section for help with these two documents) You may want to alter quorum sizes but make sure they follow the **Quorum** guidelines as well.
-5. Run command `source ssh_commands.sh` within `ssh/custom`.
-6. Wait for the all servers to start. You will see their logs in `app/log`.
-7. Modify `commands.txt` to contain the command you want run.
-8. Run `ant client` within `app`.
-9. Repeat. Also feel free to run any other client command detailed below. 
-8. When you are done, run `source ssh_cleanup.sh` to cleanup processes on all server machines you used.
-8. In between you may want to clean up the client logs. Server logs will be replaced with new ones but client logs will build up as they are named sequentially.
-
-## Customized
-You can be responsible for starting all machines! All entities configure themselves with the details of `machines.txt` and `config.txt`. There are a few build commands you can use.
-
-* `ant server` - starts a server 
-
-* `ant client` - run a client with the `commands.txt` command set.
-
-* `ant clientReadHeavy` - run client who performs 500 random reads
-
-* `ant clientWriteHeavy` - run client who performs 500 random writes
-
-* `ant clientMixed` - run client who performs 250 random reads and 250 random writes
-
-* `ant checkClient` - run client that performs `check` command
-
-
-Make sure you know what you are doing! Read the **Setup**, **Configuration**, and **Commands** sections.
-
-
-## Design Details
-
-### Servers and Coordinator
-
-
-#### ServerHandler
-Manages all of the RPC calls that come in from the coordinator or clients. Heavily utilizes its `ServerManager` or `Coordinator` field depending on what type of server it is (ordinary or coordinator).
-
-##### RPC Functions defined in Serverhandler
-* WriteResponse  ClientWrite(int  fileId): 
-	* Client calls this to  contact a random server. The server handles the client's write request
-
-* WriteResponse  ServerWrite(int  fileId)
-	* A server calls this onto the coordinator of the system, the coordinator handles the client's write request
-
-* WriteResponse  CoordWrite(File  file)
-	* The coordinator calls this onto servers of the system, the server executes the write call the certain file and returns a status
-
-* ReadResponse  ClientRead(int  fileId)
-	* Client calls this to contact a random server. The server handles the client's read request
-
-* ReadResponse  ServerRead(int  fileId)
-	* A server calls this onto the coordinator of the system, the coordinator handles the client's read request
-
-* ReadResponse  CoordRead(int  fileId)
-	* The coordinator calls this onto servers of the system, the server executes the read call on the specific file and returns the file.
-
-* StructResponse  ClientGetStruct()
-	*  Client calls this to contact a random server. The server handles the client's get structure request
-
-* StructResponse  ServerGetStruct()
-	* A server calls this onto the coordinator of the system, the coordinator handles the client's get structure request
-
-* FolderResponse  CoordGetFolder()
-	* The coordinator calls this onto servers of the system, the server gives the coordinator its folder structure which contains all of its file objects.
-
-#### ServerManager
-This is a field used by the ServerHandler and Coordinator. This object manages all of the read and write requests that the server receives. 
-
-#### Coordinator
-This field is used by the `ServerHandler` if its a coordinator server. This handles everything the Coordinator of the system does. It receives requests and then builds read or write quorums. For reads, it scans the servers of the quorum and returns the file that contains the highest version number. For writes, it updates the specific file that each server of the quorum has. This class has a `Servermanager` field that keeps track of its own server duties. If this is the case, the `ServerHandler` that created this `Coordinator` keeps its own `ServerManager` field null since the coordinator uses it instead. Coordiantor makes use of a `SemHelper` class to utilize semaphores for each file to ensure mutual exclusivity.
-
-#### SemHelper
-This class takes in an int which is the number of files that need semaphores. It creates an array of semaphores where the indices correspond to each file. This class is used by the coordinator to manage a semaphore for each file it is responsible for. This class has functions that the `Coordinator` can use to wait for and signal semaphores for each file. This allows the coordinator to ensure mutual exclusivity for the files and proper ordering since the semaphore is defined to keep its queue in FIFO order.
+4. Make sure `config.txt` is setup correctly. You may want to alter quorum sizes.
+5. Optionally delete logs from `app/log` to reduce clutter
+6. Run command `source ssh_commands.sh` within `ssh/custom`.
+7. Wait for the all servers to start. You will see their logs in `app/log`.
+8. Navigate to `app` directory
+9. Modify `commands.txt` to contain the command you want run.
+10. Run `ant client` (or any provided ant client target)
+11. Repeat to your hearts content.
+12. When you are done, run `source ssh_cleanup.sh` to cleanup processes on all server machines you used.
 
 
