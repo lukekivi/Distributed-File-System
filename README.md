@@ -108,7 +108,7 @@ export DFS_USERNAME=kivix019
 ### `app/config/config.txt`
 ---
 
-This file contains foundational information about the system you want to setup. It is the source of truth for four things: how many servers are supposed to be, write quorum size, read quorum size, and the number of files in the system.
+This file contains foundational information about the system you want to setup. It is the source of truth for four things: how many servers there are supposed to be, write quorum size, read quorum size, and the number of files in the system.
 
   
 
@@ -136,7 +136,7 @@ You may modify these entries to your liking but just be sure you do a few things
 ### `app/config/machines.txt`
 ---
 
-Here is where you declare the hostnames or ip addresses, port numbers, and IDs of each server and the coordinator.
+Here is where you declare the hostnames or ip addresses, port numbers, and IDs of each server and the coordinator. This is the source of truth for which machines must be acting as servers, and which server is the coordinator.
 
   
 
@@ -202,7 +202,7 @@ There are four commands a client may issue to the file system. All output is dir
   
 ### `app/commands/commands.txt`
 ---
-Within the `commands.txt` file you may list the commands you want to give to the system via a client. This file is located with the `commands` directory which contains a few other command files. These other command files are used in some of the tests we have provided. Please only edit `commands.txt` and it will be used by the `ant client` command. The `ant` targets and other tests will be detailed next.
+Within the `commands.txt` file you may list the commands you want to give to the system via a client. This file is located within the `commands` directory which contains a few other command files. These other command files are used in some of the tests we have provided. Please only edit `commands.txt`. It will be used by the `ant client` command. The `ant` targets and other tests will be detailed shortly.
 ```
 app
  |-- commands
@@ -231,7 +231,7 @@ Distributed-File-Server
 |   |-- readHeavy    <-- test
 |   |-- writeHeavy   <-- test
 ```
-Within you will find four directories, each containing a `ssh_commands.sh` and a `ssh_cleanup.sh` script. The automated tests are the last 3 directories. They will each start 7 servers, 3 transaction performing clients, and then a 4th client that checks the final values.
+Within you will find four directories, each containing a `ssh_commands.sh` and a `ssh_cleanup.sh` script. The automated tests are the last 3 directories. They will each start 7 servers, 3 transaction performing clients, and then a 4th client that checks the final versions of files.
 * `mixed` - transacting clients run 250 reads and 250 writes each
 * `readHeavy` - transacting clients perform 500 reads each
 * `writeHeavy` - transacting clients perform 500 writes each
@@ -246,6 +246,7 @@ These scripts are setup for UMN machines but you could replace the machine names
 5. Run command `source ssh_commands.sh` on the test directory entry of you choosing.
 6. Wait for the final check client to complete. View the logs in `app/log`. For details about output see the **Output** section.
 7. Run `source ssh_cleanup.sh` to cleanup processes on all machines you used.
+8. In between you may want to clean up the client logs. Server logs will be replaced with new ones but client logs will build up as they are named sequentially.
 
 ### Automated System Startup & Custom Clients
 Within `ssh/custom` there are two more ssh scripts. These scripts startup and cleanup a set of 7 servers. They do not run any clients. From here you can follow the `ant` commands detailed in **Customized** below. This will allow you to run as many clients as you want with any custom command sets.
@@ -261,6 +262,7 @@ Within `ssh/custom` there are two more ssh scripts. These scripts startup and cl
 8. Run `ant client` within `app`.
 9. Repeat. Also feel free to run any other client command detailed below. 
 8. When you are done, run `source ssh_cleanup.sh` to cleanup processes on all server machines you used.
+8. In between you may want to clean up the client logs. Server logs will be replaced with new ones but client logs will build up as they are named sequentially.
 
 ## Customized
 You can be responsible for starting all machines! All entities configure themselves with the details of `machines.txt` and `config.txt`. There are a few build commands you can use.
@@ -279,8 +281,6 @@ You can be responsible for starting all machines! All entities configure themsel
 
 
 Make sure you know what you are doing! Read the **Setup**, **Configuration**, and **Commands** sections.
-
-## Example Run of Automated Server and Custom Clients
 
 
 ## Design Details
