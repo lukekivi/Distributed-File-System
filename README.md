@@ -57,9 +57,7 @@ In order to run our distributed file distributed you must do a few things:
 
 * Understand how to issue commands to a client
 
-* Start the system
-  
-  
+* Start the system - note that you can start the system manually or using our provided scripts (the automated scripts are detailed in the last section of this document)
 
 ## Setup
 
