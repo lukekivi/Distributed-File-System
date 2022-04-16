@@ -184,7 +184,7 @@ Navigate to the `app` directory to run these commands:
 * `ant checkClient` - run client that performs `check` command
 
 
-*Note: there are automated tests and system startup scripts we provide. They are detailed at the end of this document.*
+**Note: there are automated tests and system startup scripts we provide. They are detailed at the end of this document.**
 
 ### Server Steps
 1. Declare the total number of servers you will start in `config.txt`
