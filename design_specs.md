@@ -76,6 +76,11 @@ The servers log each read() and write() call that it receives. The server logs a
 The coordinator logs each read() and write() call that comes in from a client. It logs the file of the request, the server that the value was found or the servers that the value was updated on, and the answer (version number for read and status for write). These are all designated with a 'COORDINATOR:' at the beginning of the line. The server that acts as the coordinator has both these coordinator and server log statements.
 
 # Client
-Needs to time itself.
+The client is responsible for processing a command script and turning it into commands that can be issued to the distributed file system. It does this with assistance from a `ClientManager` class.
 
+## ClientManager
+This class receives a command set and a boolean value for `isRandom` which determines whether or not the commands should be issued in a random order. A random server is fetched from the `machines.txt` file (detailed in the README) via the `Config` class, a connection is created, and commands are issued to the system. The server's response is displayed in a useful way. The entire command processing duration is timed and emitted to the screen.
+
+## Config
+This class is responsible for reading in the `machines.txt` and `config.txt` files in order to expose the details to the sever and client.
 
