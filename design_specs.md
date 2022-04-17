@@ -1,4 +1,7 @@
 # Design Specs
+## Overview
+We created a UML-like diagram for our implementation. This summarizes what classes exist and what they contain/do. This can be seen here: (*embed drawio diagram here*)
+
 ## File System
 
 Files are named using ids which are ints. Each file is created with an incrementing id thats in the range of 0 to n-1 where n is the number of files that each server is to contain.
@@ -71,4 +74,5 @@ The coordinator logs each read() and write() call that comes in from a client. I
 
 # Client
 Needs to time itself.
+
 
