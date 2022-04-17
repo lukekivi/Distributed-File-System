@@ -1,6 +1,7 @@
 # Design Specs
 ## Overview
-We created a UML-like diagram for our implementation. This summarizes what classes exist and what they contain/do. This can be seen here: (*embed drawio diagram here*)
+We created a UML-like diagram for our implementation. This summarizes what classes exist and what they contain/do. This can be seen here: 
+<img src="./pa3-svg-drawio.svg">
 
 ## File System
 
